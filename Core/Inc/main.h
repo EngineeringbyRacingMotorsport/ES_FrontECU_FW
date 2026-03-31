@@ -168,6 +168,9 @@ typedef struct {
 	uint8_t  FpDIGvel     ;
 	uint8_t  FpANLtaccu   ;
 	uint8_t  FpANLvaccu   ;
+
+	/* ================ HVDB ================ */
+	uint8_t  DpSDC		  ;
 } DICCP_t;
 /* USER CODE END Private defines */
 
