@@ -120,3 +120,13 @@ uint32_t 	APPS_temp=0;												// Temps (en ms) en què entrem a STEP1
 			Estat_apps = 1;
 		}
 }
+
+void LEDs(DICCF_t *DICCF, DICCP_t *DICCP){
+/*------------VALORS DE SENYALS-----------*/
+uint8_t 	BMSerror = DICCP-> FpINTebms;								// Valor de si hi ha error de BMS
+uint8_t 	IMDerror = DICCP-> FpINTeimd;								// Valor de si hi ha error de IMD
+uint8_t 	Apps_implausibility = DICCP-> FpERRapps;					// Valor de si hi ha error de APPS
+uint8_t 	SDCstate = DICCP-> DpSDC; 								    // Estat de l'entrada SDC (Safety Disconnect / Shutdown circuit)
+uint8_t 	BMSerror = DICCP-> FpINTsbms;								// Valor del state de la BMS
+
+}
