@@ -127,6 +127,21 @@ uint8_t 	BMSerror = DICCP-> FpINTebms;								// Valor de si hi ha error de BMS
 uint8_t 	IMDerror = DICCP-> FpINTeimd;								// Valor de si hi ha error de IMD
 uint8_t 	Apps_implausibility = DICCP-> FpERRapps;					// Valor de si hi ha error de APPS
 uint8_t 	SDCstate = DICCP-> DpSDC; 								    // Estat de l'entrada SDC (Safety Disconnect / Shutdown circuit)
-uint8_t 	BMSerror = DICCP-> FpINTsbms;								// Valor del state de la BMS
+uint8_t 	BMSstate_error = DICCP-> FpINTsbms;							// Valor del state de la BMS
 
+	if (BMSerror == 1){
+		HAL_GPIO_WritePin(GPIOB, GPIO_PIN_1, GPIO_PIN_SET);
+	}
+	if (IMDerror == 1){
+		HAL_GPIO_WritePin(GPIOB, GPIO_PIN_2, GPIO_PIN_SET);
+	}
+	if (Apps_implausibility == 1){
+		HAL_GPIO_WritePin(GPIOB, GPIO_PIN_5, GPIO_PIN_SET);
+	}
+	if (SDCstate == 1){
+		HAL_GPIO_WritePin(GPIOA, GPIO_PIN_4, GPIO_PIN_SET);
+	}
+	if (BMSstate_error == 1){
+		HAL_GPIOB_WritePin(GPIOB, GPIO_PIN_15, GPIO_PIN_SET);
+	}
 }
