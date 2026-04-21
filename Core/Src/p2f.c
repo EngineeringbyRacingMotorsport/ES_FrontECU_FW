@@ -132,16 +132,31 @@ uint8_t 	BMSstate_error = DICCP-> FpINTsbms;							// Valor del state de la BMS
 	if (BMSerror == 1){
 		HAL_GPIO_WritePin(GPIOB, GPIO_PIN_1, GPIO_PIN_SET);
 	}
+	else{
+		HAL_GPIO_WritePin(GPIOB, GPIO_PIN_1, GPIO_PIN_RESET);
+	}
 	if (IMDerror == 1){
 		HAL_GPIO_WritePin(GPIOB, GPIO_PIN_2, GPIO_PIN_SET);
 	}
+	else{
+			HAL_GPIO_WritePin(GPIOB, GPIO_PIN_2, GPIO_PIN_RESET);
+		}
 	if (Apps_implausibility == 1){
 		HAL_GPIO_WritePin(GPIOB, GPIO_PIN_5, GPIO_PIN_SET);
 	}
+	else{
+			HAL_GPIO_WritePin(GPIOB, GPIO_PIN_5, GPIO_PIN_RESET);
+		}
 	if (SDCstate == 1){
 		HAL_GPIO_WritePin(GPIOA, GPIO_PIN_4, GPIO_PIN_SET);
 	}
+	else{
+			HAL_GPIO_WritePin(GPIOA, GPIO_PIN_4, GPIO_PIN_RESET);
+		}
 	if (BMSstate_error == 1){
 		HAL_GPIOB_WritePin(GPIOB, GPIO_PIN_15, GPIO_PIN_SET);
 	}
+	else{
+			HAL_GPIO_WritePin(GPIOB, GPIO_PIN_15, GPIO_PIN_RESET);
+		}
 }
