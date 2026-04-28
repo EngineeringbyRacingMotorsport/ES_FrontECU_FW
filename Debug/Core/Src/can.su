@@ -1,0 +1,4 @@
+../Core/Src/can.c:7:6:CAN_Msg_Maker	24	static
+../Core/Src/can.c:45:9:CAN_Read	24	static
+../Core/Src/can.c:73:19:CAN_Send	64	static
+../Core/Src/can.c:88:6:CAN_Init_Custom	40	static

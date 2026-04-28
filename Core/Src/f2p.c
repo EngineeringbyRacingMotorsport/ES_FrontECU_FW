@@ -22,11 +22,12 @@ void DIG2DICCF(DICCF_t *DICCF){
 };
 
 void DICCF2DICCP(DICCF_t *DICCF, DICCP_t *DICCP) {
-	DICCP->SpERRbms      = DICCF->SfERRbms ;
-	DICCP->SpERRimd      = DICCF->SfERRimd ;
-	DICCP->SpLCHebms     = DICCF->SfLCHebms;
-	DICCP->SpLCHeimd     = DICCF->SfLCHeimd;
-	DICCP->SpINTresbut   = DICCF->SfINTresbut;
-	DICCP->SpSDCbms      = DICCF->SfSDCbms;
-	DICCP->SpSDCimd      = DICCF->SfSDCimd;
+	DICCP-> FpDIGmicrosd   = DICCF->FfDIGmicrosd  ;
+	DICCP-> FpSDCinertia   = DICCF->FfSDCinertia  ;
+	DICCP-> FpSDCbots      = DICCF->FfSDCbots     ;
+	DICCP-> FpSDCcsdb      = DICCF->FfSDCcsdb     ;
+	DICCP-> FpDIGrefrion   = DICCF->FfDIGrefrion  ;
+	DICCP-> FpDIGrefriauto = DICCF->FfDIGrefriauto;
+	DICCP-> FpINTpre       = DICCF->FfINTpre      ;
+	DICCP-> FpINTr2d       = DICCF->FfINTr2d      ;
 };
