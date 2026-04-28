@@ -161,3 +161,37 @@ uint8_t 	BMSstate_error = DICCP-> FpINTsbms;							// Valor del state de la BMS
 			HAL_GPIO_WritePin(GPIOB, GPIO_PIN_15, GPIO_PIN_RESET);
 		}
 }
+
+void Display(DICCF_t *DICCF, DICCP_t *DICCP){
+	// fila 0 pantalla
+	lcd_send_cmd (0x80|0x00);
+	lcd_send_string("BxxC");
+	lcd_send_cmd (0x80|(0x00+5));
+	lcd_send_string("120km/h");
+	lcd_send_cmd (0x80|(0x00+13));
+	lcd_send_string("SDC");
+	lcd_send_cmd (0x80|(0x00+17));
+	lcd_send_string("ERR");
+
+	// fila 1 pantalla
+	lcd_send_cmd (0x80|0x40);
+	lcd_send_string("IxxC");
+	lcd_send_cmd (0x80|(0x40+5));
+	lcd_send_string("100%");
+	lcd_send_cmd (0x80|(0x40+13));
+	lcd_send_string("010");
+	lcd_send_cmd (0x80|(0x40+17));
+	lcd_send_string("BMS");
+
+	// fila 2 pantalla
+	lcd_send_cmd (0x80|0x14);
+	lcd_send_string("MxxC");
+	lcd_send_cmd (0x80|(0x14+5));
+	lcd_send_string("348V");
+
+	// fila 3 pantalla
+	lcd_send_cmd (0x80|(0x54+5));
+	lcd_send_string("MISSATGE");
+
+
+}
