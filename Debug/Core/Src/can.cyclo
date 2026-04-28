@@ -1,0 +1,4 @@
+../Core/Src/can.c:7:6:CAN_Msg_Maker	1
+../Core/Src/can.c:45:9:CAN_Read	2
+../Core/Src/can.c:73:19:CAN_Send	1
+../Core/Src/can.c:88:6:CAN_Init_Custom	4

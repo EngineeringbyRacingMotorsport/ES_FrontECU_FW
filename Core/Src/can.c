@@ -56,17 +56,6 @@ uint8_t CAN_Read(DICCP_t *DICCP)
         case 0x120: // ID del Missatge 2
 
             // Byte 0: Booleans i estats
-            DICCP->SpERRbms    = (data[0] >> 0) & 0x01;
-            DICCP->SpERRimd    = (data[0] >> 1) & 0x01;
-            DICCP->SpLCHebms   = (data[0] >> 2) & 0x01;
-            DICCP->SpLCHeimd   = (data[0] >> 3) & 0x01;
-            DICCP->SpERRbms    = (data[0] >> 4) & 0x01;
-            DICCP->SpERRimd    = (data[0] >> 5) & 0x01;
-            DICCP->SpDIGresbut = (data[0] >> 6) & 0x01;
-            DICCP->SpSDC       = (data[0] >> 7) & 0x01;
-
-            // SHU (segons el teu codi original)
-            DICCP->SpSHU = ((uint16_t)data[2] | ((uint16_t)data[1] << 8)) / 10;
 
             break;
 

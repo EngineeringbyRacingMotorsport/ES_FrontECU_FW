@@ -1,0 +1,3 @@
+../Core/Src/f2p.c:3:6:DMA2DICCF	24	static
+../Core/Src/f2p.c:13:6:DIG2DICCF	16	static
+../Core/Src/f2p.c:24:6:DICCF2DICCP	16	static

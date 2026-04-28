@@ -54,20 +54,17 @@ uint32_t 	temp_R2D = 0;										// Temps (en ms) en què entrem a STEP2
 	// Sortides segons l'estat
 	if (switch_state_r == 0 || switch_state_r == 1)
 	{
-		HAL_GPIO_WritePin(GPIOB, Buzzer_Pin, GPIO_PIN_RESET); 			//Estat buzzer en repòs
-		HAL_GPIO_WritePin(GPIOB, Enable_Pin, GPIO_PIN_RESET);			//Estat enable en repòs
+		HAL_GPIO_WritePin(GPIOB, FfINTsbms_Pin, GPIO_PIN_RESET); 			//Estat buzzer en repòs
 		Estat_r2d = 0;
 	}
 	else if (switch_state_r == 2)
 	{
-		HAL_GPIO_WritePin(GPIOB, Buzzer_Pin, GPIO_PIN_SET);				//Estat buzzer actiu
-		HAL_GPIO_WritePin(GPIOB, Enable_Pin, GPIO_PIN_RESET);			//Estat enable en repòs
+		HAL_GPIO_WritePin(GPIOB, FfINTsbms_Pin, GPIO_PIN_SET);				//Estat buzzer actiu
 		Estat_r2d = 0;
 	}
 	else
 	{
-		HAL_GPIO_WritePin(GPIOB, Buzzer_Pin, GPIO_PIN_RESET);			//Estat buzzer en repòs
-		HAL_GPIO_WritePin(GPIOB, Enable_Pin, GPIO_PIN_SET);				//Estat enable en actiu
+		HAL_GPIO_WritePin(GPIOB, FfINTsbms_Pin, GPIO_PIN_RESET);			//Estat buzzer en repòs
 		Estat_r2d = 1;
 	}
 }
@@ -77,6 +74,10 @@ void APPS(DICCF_t *DICCF, DICCP_t *DICCP){
 int32_t 	RPotX = DICCF -> FfANLRpot;									// Valor que llegeix el ADC del potenciometre dret de l'accelerador
 int32_t 	LPotX = DICCF -> FfANLLpot;									// Valor que llegeix el ADC del potenciometre esquerre de l'accelerador
 uint8_t 	Estat_apps = DICCP-> FpERRapps;								// Estat final que determinarà si el cotxe té una implausibilitat o no
+uint8_t 	Rpotmin = 0;
+uint8_t 	Rpotmax = 0;
+uint8_t 	Lpotmin = 0;
+uint8_t 	Lpotmax = 0;
 uint8_t 	switch_state_a = 0;											// Estat en el que es troba el apps
 uint8_t		Perc_Pright = (RPotX - Rpotmin)/((Rpotmax - Rpotmin)/100);  // Quantitat de bits que canvia el senyal del potenciometre dret per cada % que trepitjes el pedal dret.
 uint8_t		Perc_Pleft = (LPotX - Lpotmin)/((Lpotmax - Lpotmin)/100);   // Quantitat de bits que canvia el senyal del potenciometre esquerra per cada % que trepitjes el pedal esquerra.
@@ -127,6 +128,36 @@ uint8_t 	BMSerror = DICCP-> FpINTebms;								// Valor de si hi ha error de BMS
 uint8_t 	IMDerror = DICCP-> FpINTeimd;								// Valor de si hi ha error de IMD
 uint8_t 	Apps_implausibility = DICCP-> FpERRapps;					// Valor de si hi ha error de APPS
 uint8_t 	SDCstate = DICCP-> DpSDC; 								    // Estat de l'entrada SDC (Safety Disconnect / Shutdown circuit)
-uint8_t 	BMSerror = DICCP-> FpINTsbms;								// Valor del state de la BMS
+uint8_t 	BMSstate_error = DICCP-> FpINTsbms;							// Valor del state de la BMS
 
+	if (BMSerror == 1){
+		HAL_GPIO_WritePin(GPIOB, GPIO_PIN_1, GPIO_PIN_SET);
+	}
+	else{
+		HAL_GPIO_WritePin(GPIOB, GPIO_PIN_1, GPIO_PIN_RESET);
+	}
+	if (IMDerror == 1){
+		HAL_GPIO_WritePin(GPIOB, GPIO_PIN_2, GPIO_PIN_SET);
+	}
+	else{
+			HAL_GPIO_WritePin(GPIOB, GPIO_PIN_2, GPIO_PIN_RESET);
+		}
+	if (Apps_implausibility == 1){
+		HAL_GPIO_WritePin(GPIOB, GPIO_PIN_5, GPIO_PIN_SET);
+	}
+	else{
+			HAL_GPIO_WritePin(GPIOB, GPIO_PIN_5, GPIO_PIN_RESET);
+		}
+	if (SDCstate == 1){
+		HAL_GPIO_WritePin(GPIOA, GPIO_PIN_4, GPIO_PIN_SET);
+	}
+	else{
+			HAL_GPIO_WritePin(GPIOA, GPIO_PIN_4, GPIO_PIN_RESET);
+		}
+	if (BMSstate_error == 1){
+		HAL_GPIOB_WritePin(GPIOB, GPIO_PIN_15, GPIO_PIN_SET);
+	}
+	else{
+			HAL_GPIO_WritePin(GPIOB, GPIO_PIN_15, GPIO_PIN_RESET);
+		}
 }

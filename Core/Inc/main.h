@@ -150,24 +150,26 @@ typedef struct {
 	uint8_t  FpANLbrake ;
 
 	/* ================ MISSATGE 2 ================ */
-	uint8_t  FpINTebms    ;
-	uint8_t  FpINTeimd    ;
-	uint8_t  FpINTtsoff   ;
-	uint8_t  FpINTsbms    ;
-	uint8_t  FpINTpre     ;
-	uint8_t  FpINTr2d     ;
-	uint8_t  FpINTmenu    ;
-	uint8_t  FpDIGmicrosd ;
-	uint8_t  FpSDCinertia ;
-	uint8_t  FpSDCbots    ;
-	uint8_t  FpSDCcsdb    ;
-	uint8_t  FpERRapps    ;
-	uint8_t  FpDIGrefri   ;
-	uint8_t  FpDIGr2d     ;
-	uint16_t FpSHU        ;
-	uint8_t  FpDIGvel     ;
-	uint8_t  FpANLtaccu   ;
-	uint8_t  FpANLvaccu   ;
+	uint8_t  FpINTebms     ;
+	uint8_t  FpINTeimd     ;
+	uint8_t  FpINTtsoff    ;
+	uint8_t  FpINTsbms     ;
+	uint8_t  FpINTpre      ;
+	uint8_t  FpINTr2d      ;
+	uint8_t  FpINTmenu     ;
+	uint8_t  FpDIGmicrosd  ;
+	uint8_t  FpSDCinertia  ;
+	uint8_t  FpSDCbots     ;
+	uint8_t  FpSDCcsdb     ;
+	uint8_t  FpERRapps     ;
+	uint8_t  FpDIGrefri    ;
+	uint8_t  FpDIGrefrion  ;
+	uint8_t  FpDIGrefriauto;
+	uint8_t  FpDIGr2d      ;
+	uint16_t FpSHU         ;
+	uint8_t  FpDIGvel      ;
+	uint8_t  FpANLtaccu    ;
+	uint8_t  FpANLvaccu    ;
 
 	/* ================ HVDB ================ */
 	uint8_t  DpSDC		  ;
