@@ -163,6 +163,9 @@ uint8_t 	BMSstate_error = DICCP-> FpINTsbms;							// Valor del state de la BMS
 }
 
 void Display(DICCF_t *DICCF, DICCP_t *DICCP){
+uint8_t 	BMSerror = DICCP-> FpINTebms;								// Valor de si hi ha error de BMS
+uint8_t 	IMDerror = DICCP-> FpINTeimd;								// Valor de si hi ha error de IMD
+uint8_t 	APPerror = DICCP-> FpERRapps;								// Valor de si hi ha error de APPS
 	// fila 0 pantalla
 	lcd_send_cmd (0x80|0x00);
 	lcd_send_string("BxxC");
@@ -180,8 +183,21 @@ void Display(DICCF_t *DICCF, DICCP_t *DICCP){
 	lcd_send_string("100%");
 	lcd_send_cmd (0x80|(0x40+13));
 	lcd_send_string("010");
-	lcd_send_cmd (0x80|(0x40+17));
-	lcd_send_string("BMS");
+	if (BMSerror == 1)
+	{
+		lcd_send_cmd (0x80|(0x40+17));
+		lcd_send_string("BMS");
+	}
+	if (IMDerror == 1)
+	{
+		lcd_send_cmd (0x80|(0x40+17));
+		lcd_send_string("IMD");
+	}
+	if (APPerror == 1)
+	{
+		lcd_send_cmd (0x80|(0x40+17));
+		lcd_send_string("APP");
+	}
 
 	// fila 2 pantalla
 	lcd_send_cmd (0x80|0x14);
