@@ -1,6 +1,6 @@
 #include <can.h>
 
-static CAN_Msg rxBuffer[CAN_RX_BUF_SIZE];
+/*static CAN_Msg rxBuffer[CAN_RX_BUF_SIZE];*/
 static volatile int rxHead = 0;
 static volatile int rxTail = 0;
 
@@ -41,7 +41,7 @@ void CAN_Msg_Maker(DICCP_t *DICCP, uint8_t *Msg1, uint8_t *Msg2)
 	Msg2[5] |= ((DICCP->FpSHU      & 0x00FF) << 0);
 	Msg2[6] |= ((DICCP->FpSHU      & 0xFF00) >> 8);
 }
-
+/*
 uint8_t CAN_Read(DICCP_t *DICCP)
 {
     if (rxHead == rxTail) {
@@ -68,7 +68,7 @@ uint8_t CAN_Read(DICCP_t *DICCP)
     rxTail = (rxTail + 1) % CAN_RX_BUF_SIZE;
 
     return 1; // Missatge processat
-}
+}*/
 
 HAL_StatusTypeDef CAN_Send(FDCAN_HandleTypeDef *hfdcan, uint32_t id, uint8_t *data, uint32_t len) {
     FDCAN_TxHeaderTypeDef txHeader;
@@ -81,6 +81,8 @@ HAL_StatusTypeDef CAN_Send(FDCAN_HandleTypeDef *hfdcan, uint32_t id, uint8_t *da
     txHeader.FDFormat = FDCAN_CLASSIC_CAN;
     txHeader.TxEventFifoControl = FDCAN_NO_TX_EVENTS;
     txHeader.MessageMarker = 0;
+
+    HAL_GPIO_WritePin(GPIOB, FfSUPled_Pin, GPIO_PIN_RESET);
 
     return HAL_FDCAN_AddMessageToTxFifoQ(hfdcan, &txHeader, data);
 }

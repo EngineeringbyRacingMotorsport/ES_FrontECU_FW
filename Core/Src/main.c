@@ -19,12 +19,11 @@
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
 
-#include "can.h"
-#include "f2p.h"
-
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-
+#include "can.h"
+#include "f2p.h"
+#include "p2f.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -131,6 +130,9 @@ int main(void)
 	  CAN_Send(&hfdcan1, 0x300, Msg1, 7);
 	  CAN_Send(&hfdcan1, 0x301, Msg2, 7);
 
+	  HAL_Delay(200);
+
+	  HAL_GPIO_WritePin(GPIOB, FfSUPled_Pin, GPIO_PIN_SET);
 	  HAL_Delay(100);
   }
   /* USER CODE END 3 */
@@ -152,15 +154,14 @@ void SystemClock_Config(void)
   /** Initializes the RCC Oscillators according to the specified parameters
   * in the RCC_OscInitTypeDef structure.
   */
-  RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSI;
-  RCC_OscInitStruct.HSIState = RCC_HSI_ON;
-  RCC_OscInitStruct.HSICalibrationValue = RCC_HSICALIBRATION_DEFAULT;
+  RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSE;
+  RCC_OscInitStruct.HSEState = RCC_HSE_ON;
   RCC_OscInitStruct.PLL.PLLState = RCC_PLL_ON;
-  RCC_OscInitStruct.PLL.PLLSource = RCC_PLLSOURCE_HSI;
+  RCC_OscInitStruct.PLL.PLLSource = RCC_PLLSOURCE_HSE;
   RCC_OscInitStruct.PLL.PLLM = RCC_PLLM_DIV1;
-  RCC_OscInitStruct.PLL.PLLN = 10;
+  RCC_OscInitStruct.PLL.PLLN = 20;
   RCC_OscInitStruct.PLL.PLLP = RCC_PLLP_DIV2;
-  RCC_OscInitStruct.PLL.PLLQ = RCC_PLLQ_DIV2;
+  RCC_OscInitStruct.PLL.PLLQ = RCC_PLLQ_DIV4;
   RCC_OscInitStruct.PLL.PLLR = RCC_PLLR_DIV2;
   if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK)
   {
@@ -369,8 +370,8 @@ static void MX_FDCAN1_Init(void)
   hfdcan1.Init.ProtocolException = DISABLE;
   hfdcan1.Init.NominalPrescaler = 20;
   hfdcan1.Init.NominalSyncJumpWidth = 1;
-  hfdcan1.Init.NominalTimeSeg1 = 13;
-  hfdcan1.Init.NominalTimeSeg2 = 2;
+  hfdcan1.Init.NominalTimeSeg1 = 12;
+  hfdcan1.Init.NominalTimeSeg2 = 3;
   hfdcan1.Init.DataPrescaler = 1;
   hfdcan1.Init.DataSyncJumpWidth = 1;
   hfdcan1.Init.DataTimeSeg1 = 1;
@@ -478,7 +479,7 @@ static void MX_GPIO_Init(void)
   HAL_GPIO_WritePin(FfDIGr2d_GPIO_Port, FfDIGr2d_Pin, GPIO_PIN_RESET);
 
   /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(GPIOB, FfINTebms_Pin|FfINTeimd_Pin|FfINTpwr_Pin|FfINTsbms_Pin
+  HAL_GPIO_WritePin(GPIOB, FfINTebms_Pin|FfINTeimd_Pin|FfSUPled_Pin|FfINTsbms_Pin
                           |FfERRapps_Pin|FfINTtsoff_Pin, GPIO_PIN_RESET);
 
   /*Configure GPIO pin : FfINTmenu_Pin */
@@ -500,9 +501,9 @@ static void MX_GPIO_Init(void)
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
-  /*Configure GPIO pins : FfINTebms_Pin FfINTeimd_Pin FfINTpwr_Pin FfINTsbms_Pin
+  /*Configure GPIO pins : FfINTebms_Pin FfINTeimd_Pin FfSUPled_Pin FfINTsbms_Pin
                            FfERRapps_Pin FfINTtsoff_Pin */
-  GPIO_InitStruct.Pin = FfINTebms_Pin|FfINTeimd_Pin|FfINTpwr_Pin|FfINTsbms_Pin
+  GPIO_InitStruct.Pin = FfINTebms_Pin|FfINTeimd_Pin|FfSUPled_Pin|FfINTsbms_Pin
                           |FfERRapps_Pin|FfINTtsoff_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Pull = GPIO_NOPULL;

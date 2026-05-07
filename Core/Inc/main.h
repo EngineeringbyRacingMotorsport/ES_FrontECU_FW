@@ -79,8 +79,8 @@ void Error_Handler(void);
 #define FfINTebms_GPIO_Port GPIOB
 #define FfINTeimd_Pin GPIO_PIN_2
 #define FfINTeimd_GPIO_Port GPIOB
-#define FfINTpwr_Pin GPIO_PIN_11
-#define FfINTpwr_GPIO_Port GPIOB
+#define FfSUPled_Pin GPIO_PIN_11
+#define FfSUPled_GPIO_Port GPIOB
 #define FfSDCinertia_Pin GPIO_PIN_12
 #define FfSDCinertia_GPIO_Port GPIOB
 #define FfSDCbots_Pin GPIO_PIN_13
