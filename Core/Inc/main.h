@@ -75,10 +75,6 @@ void Error_Handler(void);
 #define FfSHU_GPIO_Port GPIOA
 #define FfANLbrake_Pin GPIO_PIN_0
 #define FfANLbrake_GPIO_Port GPIOB
-#define FfINTebms_Pin GPIO_PIN_1
-#define FfINTebms_GPIO_Port GPIOB
-#define FfINTeimd_Pin GPIO_PIN_2
-#define FfINTeimd_GPIO_Port GPIOB
 #define FfSUPled_Pin GPIO_PIN_11
 #define FfSUPled_GPIO_Port GPIOB
 #define FfSDCinertia_Pin GPIO_PIN_12
@@ -99,10 +95,6 @@ void Error_Handler(void);
 #define FfERRapps_GPIO_Port GPIOB
 #define FfDIGrefriauto_Pin GPIO_PIN_6
 #define FfDIGrefriauto_GPIO_Port GPIOB
-#define FfINTpre_Pin GPIO_PIN_7
-#define FfINTpre_GPIO_Port GPIOB
-#define FfINTtsoff_Pin GPIO_PIN_8
-#define FfINTtsoff_GPIO_Port GPIOB
 #define FfINTr2d_Pin GPIO_PIN_9
 #define FfINTr2d_GPIO_Port GPIOB
 

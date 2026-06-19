@@ -6,4 +6,4 @@
 ../Core/Src/main.c:397:13:MX_I2C2_Init	4
 ../Core/Src/main.c:443:13:MX_DMA_Init	1
 ../Core/Src/main.c:465:13:MX_GPIO_Init	1
-../Core/Src/main.c:546:6:Error_Handler	1
+../Core/Src/main.c:543:6:Error_Handler	1
