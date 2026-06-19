@@ -101,8 +101,6 @@ int main(void)
   uint8_t Msg1[7] = {0};
   uint8_t Msg2[7] = {0};
   CAN_Init_Custom(&hfdcan1);
-  lcd_init();
-  lcd_put_cur(0,0);
   /* USER CODE END 2 */
 
   /* Infinite loop */

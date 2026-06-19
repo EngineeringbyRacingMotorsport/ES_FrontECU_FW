@@ -15,7 +15,6 @@ uint32_t 	temp_R2D = 0;										// Temps (en ms) en què entrem a STEP2
 	{
 		// Condicions per passar d'inicial a STEP1: fre premut (Brake >= 300), SDC actiu (SDC != 0), botó R2D premut (Button_R2DX != 0),
 		//Aire positiu OK (TSoff != 0) i sense error d'APPS (!error_apps)
-		//Pel que fa el buttonR2D quan esta premut valdra 1
 		case 0:
 			if (Brake >= 300 && SDC == 1 && Button_R2DX == 1 && TSoff == 1){
 				switch_state_r = 1;

@@ -32,10 +32,6 @@ void lcd_send_data (char data)
 	HAL_I2C_Master_Transmit (&hi2c1, SLAVE_ADDRESS_LCD,(uint8_t *) data_t, 4, 100);
 }
 
-void lcd_enviar(char *string,int row,int col){
-	lcd_put_cur(row,col);
-	lcd_send_string(string);
-}
 void lcd_clear (void)
 {
 	lcd_send_cmd (0x00);
@@ -45,17 +41,6 @@ void lcd_clear (void)
 	}
 }
 
-void lcd_put_cur(int row,int col){
-	switch (row){
-		case 0:
-			col |= 0x80;
-			break;
-		case 1:
-			col |= 0xC0;
-			break;
-	}
-	lcd_send_cmd (col);
-}
 void lcd_init (void)
 {
 	// 4 bit initialisation
