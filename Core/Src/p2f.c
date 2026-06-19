@@ -208,6 +208,4 @@ uint8_t 	APPerror = DICCP-> FpERRapps;								// Valor de si hi ha error de APPS
 	// fila 3 pantalla
 	lcd_send_cmd (0x80|(0x54+5));
 	lcd_send_string("MISSATGE");
-
-
 }
