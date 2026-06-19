@@ -18,12 +18,24 @@
 /* USER CODE END Header */
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
+<<<<<<< HEAD
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include "can.h"
 #include "f2p.h"
 #include "p2f.h"
+=======
+#include "adc.h"
+#include "dma.h"
+#include "fdcan.h"
+#include "i2c.h"
+#include "gpio.h"
+
+/* Private includes ----------------------------------------------------------*/
+/* USER CODE BEGIN Includes */
+#include "i2c-lcd.h"
+>>>>>>> Display
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -42,14 +54,6 @@
 /* USER CODE END PM */
 
 /* Private variables ---------------------------------------------------------*/
-ADC_HandleTypeDef hadc1;
-ADC_HandleTypeDef hadc2;
-DMA_HandleTypeDef hdma_adc1;
-DMA_HandleTypeDef hdma_adc2;
-
-FDCAN_HandleTypeDef hfdcan1;
-
-I2C_HandleTypeDef hi2c2;
 
 /* USER CODE BEGIN PV */
 
@@ -57,12 +61,6 @@ I2C_HandleTypeDef hi2c2;
 
 /* Private function prototypes -----------------------------------------------*/
 void SystemClock_Config(void);
-static void MX_GPIO_Init(void);
-static void MX_DMA_Init(void);
-static void MX_ADC1_Init(void);
-static void MX_ADC2_Init(void);
-static void MX_FDCAN1_Init(void);
-static void MX_I2C2_Init(void);
 /* USER CODE BEGIN PFP */
 
 /* USER CODE END PFP */
@@ -183,6 +181,7 @@ void SystemClock_Config(void)
   }
 }
 
+<<<<<<< HEAD
 /**
   * @brief ADC1 Initialization Function
   * @param None
@@ -532,6 +531,8 @@ static void MX_GPIO_Init(void)
   /* USER CODE END MX_GPIO_Init_2 */
 }
 
+=======
+>>>>>>> Display
 /* USER CODE BEGIN 4 */
 
 /* USER CODE END 4 */
