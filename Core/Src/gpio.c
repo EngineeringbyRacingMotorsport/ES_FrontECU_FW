@@ -54,8 +54,7 @@ void MX_GPIO_Init(void)
   HAL_GPIO_WritePin(FfDIGr2d_GPIO_Port, FfDIGr2d_Pin, GPIO_PIN_RESET);
 
   /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(GPIOB, FfINTebms_Pin|FfINTeimd_Pin|FfINTpwr_Pin|FfINTsbms_Pin
-                          |FfERRapps_Pin|FfINTtsoff_Pin, GPIO_PIN_RESET);
+  HAL_GPIO_WritePin(GPIOB, FfSUPled_Pin|FfINTsbms_Pin|FfERRapps_Pin, GPIO_PIN_RESET);
 
   /*Configure GPIO pin : FfINTmenu_Pin */
   GPIO_InitStruct.Pin = FfINTmenu_Pin;
@@ -76,19 +75,17 @@ void MX_GPIO_Init(void)
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
-  /*Configure GPIO pins : FfINTebms_Pin FfINTeimd_Pin FfINTpwr_Pin FfINTsbms_Pin
-                           FfERRapps_Pin FfINTtsoff_Pin */
-  GPIO_InitStruct.Pin = FfINTebms_Pin|FfINTeimd_Pin|FfINTpwr_Pin|FfINTsbms_Pin
-                          |FfERRapps_Pin|FfINTtsoff_Pin;
+  /*Configure GPIO pins : FfSUPled_Pin FfINTsbms_Pin FfERRapps_Pin */
+  GPIO_InitStruct.Pin = FfSUPled_Pin|FfINTsbms_Pin|FfERRapps_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
   HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
 
   /*Configure GPIO pins : FfSDCinertia_Pin FfSDCbots_Pin FfSDCcsdb_Pin FfDIGrefriauto_Pin
-                           FfINTpre_Pin FfINTr2d_Pin */
+                           FfINTr2d_Pin */
   GPIO_InitStruct.Pin = FfSDCinertia_Pin|FfSDCbots_Pin|FfSDCcsdb_Pin|FfDIGrefriauto_Pin
-                          |FfINTpre_Pin|FfINTr2d_Pin;
+                          |FfINTr2d_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);

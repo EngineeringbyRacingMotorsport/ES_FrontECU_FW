@@ -112,11 +112,7 @@ typedef union {
 	uint8_t  FfANLbrake ;
 
 	/* ================ MISSATGE 2 ================ */
-	uint8_t  FfINTebms      ;
-	uint8_t  FfINTeimd      ;
-	uint8_t  FfINTtsoff     ;
 	uint8_t  FfINTsbms      ;
-	uint8_t  FfINTpre       ;
 	uint8_t  FfINTr2d       ;
 	uint8_t  FfINTmenu      ;
 	uint8_t  FfDIGmicrosd   ;
@@ -128,6 +124,7 @@ typedef union {
 	uint8_t  FfDIGrefriauto ;
 	uint8_t  FfDIGr2d       ;
 	uint16_t FfSHU          ;
+	uint8_t  FfSUPled       ;
 	};
 } DICCF_t;
 
@@ -142,11 +139,7 @@ typedef struct {
 	uint8_t  FpANLbrake ;
 
 	/* ================ MISSATGE 2 ================ */
-	uint8_t  FpINTebms     ;
-	uint8_t  FpINTeimd     ;
-	uint8_t  FpINTtsoff    ;
 	uint8_t  FpINTsbms     ;
-	uint8_t  FpINTpre      ;
 	uint8_t  FpINTr2d      ;
 	uint8_t  FpINTmenu     ;
 	uint8_t  FpDIGmicrosd  ;
@@ -164,7 +157,7 @@ typedef struct {
 	uint8_t  FpANLvaccu    ;
 
 	/* ================ HVDB ================ */
-	uint8_t  DpSDC		  ;
+	uint8_t  DpSDC		   ;
 } DICCP_t;
 /* USER CODE END Private defines */
 
