@@ -63,10 +63,6 @@ void Error_Handler(void);
 #define FfANLRpot_GPIO_Port GPIOA
 #define FfANLLpot_Pin GPIO_PIN_1
 #define FfANLLpot_GPIO_Port GPIOA
-#define FfANLRsus_Pin GPIO_PIN_2
-#define FfANLRsus_GPIO_Port GPIOA
-#define FfANLLsus_Pin GPIO_PIN_3
-#define FfANLLsus_GPIO_Port GPIOA
 #define FfDIGr2d_Pin GPIO_PIN_4
 #define FfDIGr2d_GPIO_Port GPIOA
 #define FfDIGmicrosd_Pin GPIO_PIN_6
@@ -93,8 +89,6 @@ void Error_Handler(void);
 #define FfDIGLvel_GPIO_Port GPIOB
 #define FfERRapps_Pin GPIO_PIN_5
 #define FfERRapps_GPIO_Port GPIOB
-#define FfDIGrefriauto_Pin GPIO_PIN_6
-#define FfDIGrefriauto_GPIO_Port GPIOB
 #define FfINTr2d_Pin GPIO_PIN_9
 #define FfINTr2d_GPIO_Port GPIOB
 
@@ -139,7 +133,14 @@ typedef struct {
 	uint8_t  FpANLbrake ;
 
 	/* ================ MISSATGE 2 ================ */
+	uint8_t  FpDIGvel      ;
+	uint8_t  FpANLtaccu    ;
+	uint8_t  FpANLvaccu    ;
+	uint8_t  FpINTebms     ;
+	uint8_t  FpINTeimd     ;
+	uint8_t  FpINTtsoff    ;
 	uint8_t  FpINTsbms     ;
+	uint8_t  FpINTpre	   ;
 	uint8_t  FpINTr2d      ;
 	uint8_t  FpINTmenu     ;
 	uint8_t  FpDIGmicrosd  ;
@@ -152,9 +153,6 @@ typedef struct {
 	uint8_t  FpDIGrefriauto;
 	uint8_t  FpDIGr2d      ;
 	uint16_t FpSHU         ;
-	uint8_t  FpDIGvel      ;
-	uint8_t  FpANLtaccu    ;
-	uint8_t  FpANLvaccu    ;
 
 	/* ================ HVDB ================ */
 	uint8_t  DpSDC		   ;

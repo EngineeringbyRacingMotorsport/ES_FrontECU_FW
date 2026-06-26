@@ -1,19 +1,16 @@
 #include <can.h>
 
-/*static CAN_Msg rxBuffer[CAN_RX_BUF_SIZE];*/
-static volatile int rxHead = 0;
-static volatile int rxTail = 0;
+extern DICCF_t DICCF;
+extern DICCP_t DICCP;
 
 void CAN_Msg_Maker(DICCP_t *DICCP, uint8_t *Msg1, uint8_t *Msg2)
 {
 	/*------------MISSATGE 1-----------*/
 	Msg1[0] |= (DICCP->FpANLRpot  & 0xFF);
 	Msg1[1] |= (DICCP->FpANLLpot  & 0xFF);
-	Msg1[2] |= (DICCP->FpANLRsus  & 0xFF);
-	Msg1[3] |= (DICCP->FpANLLsus  & 0xFF);
-	Msg1[4] |= (DICCP->FpDIGRvel  & 0xFF);
-	Msg1[5] |= (DICCP->FpDIGLvel  & 0xFF);
-	Msg1[6] |= (DICCP->FpANLbrake & 0xFF);
+	Msg1[2] |= (DICCP->FpDIGRvel  & 0xFF);
+	Msg1[3] |= (DICCP->FpDIGLvel  & 0xFF);
+	Msg1[4] |= (DICCP->FpANLbrake & 0xFF);
 
 	/*---------------MISSATGE 2----------------*/
 	Msg2[0] |= ((DICCP->FpINTebms    & 0x01) << 0);
@@ -29,46 +26,31 @@ void CAN_Msg_Maker(DICCP_t *DICCP, uint8_t *Msg1, uint8_t *Msg2)
 	Msg2[1] |= ((DICCP->FpSDCbots    & 0x01) << 1);
 	Msg2[1] |= ((DICCP->FpSDCcsdb    & 0x01) << 2);
 	Msg2[1] |= ((DICCP->FpERRapps    & 0x01) << 3);
-	Msg2[1] |= ((DICCP->FpDIGrefri   & 0x03) << 4);
-	Msg2[1] |= ((DICCP->FpDIGr2d     & 0x01) << 6);
+	Msg2[1] |= ((DICCP->FpDIGrefri   & 0x01) << 4);
+	Msg2[1] |= ((DICCP->FpDIGr2d     & 0x01) << 5);
 
 	Msg2[2] |= ((DICCP->FpDIGvel     & 0xFF) << 0);
 
-	Msg2[3] |= ((DICCP->FpANLtaccu   & 0xFF) << 0);
-
-	Msg2[4] |= ((DICCP->FpANLvaccu   & 0xFF) << 0);
-
-	Msg2[5] |= ((DICCP->FpSHU      & 0x00FF) << 0);
-	Msg2[6] |= ((DICCP->FpSHU      & 0xFF00) >> 8);
+	Msg2[3] |= ((DICCP->FpSHU      & 0x00FF) << 0);
+	Msg2[4] |= ((DICCP->FpSHU      & 0xFF00) >> 8);
 }
-/*
-uint8_t CAN_Read(DICCP_t *DICCP)
+
+void HAL_FDCAN_RxFifo0Callback(FDCAN_HandleTypeDef *hfdcan, uint32_t RxFifo0ITs)
 {
-    if (rxHead == rxTail) {
-        return 0; // No hi ha missatges
-    }
+    FDCAN_RxHeaderTypeDef RxHeader;
+    uint8_t RxData[8];
 
-    CAN_Msg *rxMsg = &rxBuffer[rxTail];
-    uint8_t *data = rxMsg->data;
-
-    switch (rxMsg->header.Identifier)
+    if ((RxFifo0ITs & FDCAN_IT_RX_FIFO0_NEW_MESSAGE) != 0)
     {
-        case 0x120: // ID del Missatge 2
-
-            // Byte 0: Booleans i estats
-
-            break;
-
-        default:
-            // ID desconeguda → no fem res
-            break;
+        if (HAL_FDCAN_GetRxMessage(hfdcan, FDCAN_RX_FIFO0, &RxHeader, RxData) == HAL_OK)
+        {
+            if(RxHeader.IdType == 0x400)
+            {
+            	DICCP.DpSDC = RxData[1] & 0x01;
+            }
+        }
     }
-
-    // Avançar el tail després de processar
-    rxTail = (rxTail + 1) % CAN_RX_BUF_SIZE;
-
-    return 1; // Missatge processat
-}*/
+}
 
 HAL_StatusTypeDef CAN_Send(FDCAN_HandleTypeDef *hfdcan, uint32_t id, uint8_t *data, uint32_t len) {
     FDCAN_TxHeaderTypeDef txHeader;

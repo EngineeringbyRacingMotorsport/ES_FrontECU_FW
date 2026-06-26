@@ -6,8 +6,7 @@ void R2D(DICCF_t *DICCF, DICCP_t *DICCP){
 uint8_t 	SDC = DICCP-> DpSDC; 								// Estat de l'entrada SDC (Safety Disconnect / Shutdown circuit)
 uint8_t 	TSoff  = DICCP->FpINTtsoff;							// Estat del tsoff (pressió OK)
 uint8_t 	Button_R2DX = DICCP->FpINTr2d; 						// Estat del botó Ready To Drive
-uint32_t 	Brake = DICCF->FfANLbrake;							// Valor que llegeix el ADC del sensor de fre
-uint8_t 	Estat_r2d = DICCP-> FpDIGr2d;						// Estat final que determinarà si el cotxe està ready to drive o no
+uint32_t 	Brake = DICCF->FfANLbrake;							// Valor que llegeix el ADC del sensor de fre						// Estat final que determinarà si el cotxe està ready to drive o no
 uint8_t 	switch_state_r = 0;									// Estat en el que es troba el r2d
 uint32_t 	temp_R2D = 0;										// Temps (en ms) en què entrem a STEP2
 
@@ -55,17 +54,17 @@ uint32_t 	temp_R2D = 0;										// Temps (en ms) en què entrem a STEP2
 	if (switch_state_r == 0 || switch_state_r == 1)
 	{
 		HAL_GPIO_WritePin(GPIOB, FfINTsbms_Pin, GPIO_PIN_RESET); 			//Estat buzzer en repòs
-		Estat_r2d = 0;
+		DICCP-> FpDIGr2d = 0;
 	}
 	else if (switch_state_r == 2)
 	{
 		HAL_GPIO_WritePin(GPIOB, FfINTsbms_Pin, GPIO_PIN_SET);				//Estat buzzer actiu
-		Estat_r2d = 0;
+		DICCP-> FpDIGr2d = 0;
 	}
 	else
 	{
 		HAL_GPIO_WritePin(GPIOB, FfINTsbms_Pin, GPIO_PIN_RESET);			//Estat buzzer en repòs
-		Estat_r2d = 1;
+		DICCP-> FpDIGr2d = 1;
 	}
 }
 
@@ -123,37 +122,8 @@ uint32_t 	APPS_temp=0;												// Temps (en ms) en què entrem a STEP1
 }
 
 void LEDs(DICCF_t *DICCF, DICCP_t *DICCP){
-/*------------VALORS DE SENYALS-----------*/
-uint8_t 	BMSerror = DICCP-> FpINTebms;								// Valor de si hi ha error de BMS
-uint8_t 	IMDerror = DICCP-> FpINTeimd;								// Valor de si hi ha error de IMD
-uint8_t 	Apps_implausibility = DICCP-> FpERRapps;					// Valor de si hi ha error de APPS
-uint8_t 	SDCstate = DICCP-> DpSDC; 								    // Estat de l'entrada SDC (Safety Disconnect / Shutdown circuit)
+/*------------VALORS DE SENYALS-----------*/							// Valor de si hi ha error de IMD							    // Estat de l'entrada SDC (Safety Disconnect / Shutdown circuit)
 uint8_t 	BMSstate_error = DICCP-> FpINTsbms;							// Valor del state de la BMS
-
-	if (BMSerror == 1){
-		HAL_GPIO_WritePin(GPIOB, GPIO_PIN_1, GPIO_PIN_SET);
-	}
-	else{
-		HAL_GPIO_WritePin(GPIOB, GPIO_PIN_1, GPIO_PIN_RESET);
-	}
-	if (IMDerror == 1){
-		HAL_GPIO_WritePin(GPIOB, GPIO_PIN_2, GPIO_PIN_SET);
-	}
-	else{
-			HAL_GPIO_WritePin(GPIOB, GPIO_PIN_2, GPIO_PIN_RESET);
-		}
-	if (Apps_implausibility == 1){
-		HAL_GPIO_WritePin(GPIOB, GPIO_PIN_5, GPIO_PIN_SET);
-	}
-	else{
-			HAL_GPIO_WritePin(GPIOB, GPIO_PIN_5, GPIO_PIN_RESET);
-		}
-	if (SDCstate == 1){
-		HAL_GPIO_WritePin(GPIOA, GPIO_PIN_4, GPIO_PIN_SET);
-	}
-	else{
-			HAL_GPIO_WritePin(GPIOA, GPIO_PIN_4, GPIO_PIN_RESET);
-		}
 	if (BMSstate_error == 1){
 		HAL_GPIOB_WritePin(GPIOB, GPIO_PIN_15, GPIO_PIN_SET);
 	}
