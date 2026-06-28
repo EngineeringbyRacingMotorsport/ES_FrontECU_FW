@@ -136,11 +136,7 @@ typedef struct {
 	uint8_t  FpDIGvel      ;
 	uint8_t  FpANLtaccu    ;
 	uint8_t  FpANLvaccu    ;
-	uint8_t  FpINTebms     ;
-	uint8_t  FpINTeimd     ;
-	uint8_t  FpINTtsoff    ;
 	uint8_t  FpINTsbms     ;
-	uint8_t  FpINTpre	   ;
 	uint8_t  FpINTr2d      ;
 	uint8_t  FpINTmenu     ;
 	uint8_t  FpDIGmicrosd  ;

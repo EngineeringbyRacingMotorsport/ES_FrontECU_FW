@@ -1,4 +1,4 @@
-../Core/Src/p2f.c:4:6:R2D	32	static
-../Core/Src/p2f.c:71:6:APPS	40	static
-../Core/Src/p2f.c:124:6:LEDs	24	static
-../Core/Src/p2f.c:164:6:Display	24	static
+../Core/Src/p2f.c:6:16:APPS	40	static
+../Core/Src/p2f.c:68:6:LEDs	24	static
+../Core/Src/p2f.c:79:6:Display	24	static
+../Core/Src/p2f.c:129:6:R2D	32	static
