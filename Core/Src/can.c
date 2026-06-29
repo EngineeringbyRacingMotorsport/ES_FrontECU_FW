@@ -1,6 +1,5 @@
 #include <can.h>
 
-extern DICCF_t DICCF;
 extern DICCP_t DICCP;
 
 void CAN_Msg_Maker(DICCP_t *DICCP, uint8_t *Msg1, uint8_t *Msg2)
