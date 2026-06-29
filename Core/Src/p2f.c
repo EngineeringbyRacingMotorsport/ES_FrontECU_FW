@@ -5,24 +5,23 @@
 
 static uint8_t APPS(DICCF_t *DICCF, DICCP_t *DICCP){
 	/*------------VARIABLES APPS-----------*/
-	int32_t 	RPotX = DICCF -> FfANLRpot;									// Valor que llegeix el ADC del potenciometre dret de l'accelerador
-	int32_t 	LPotX = DICCF -> FfANLLpot;									// Valor que llegeix el ADC del potenciometre esquerre de l'accelerador
-
+	int32_t 	RPotX = DICCF -> FfANLRpot;																		// Valor que llegeix el ADC del potenciometre dret de l'accelerador
+	int32_t 	LPotX = DICCF -> FfANLLpot;																		// Valor que llegeix el ADC del potenciometre esquerre de l'accelerador
 	uint8_t 	Rpotmin = 0;
 	uint8_t 	Rpotmax = 0;
 	uint8_t 	Lpotmin = 0;
 	uint8_t 	Lpotmax = 0;
-	static uint8_t 	switch_state_a = 0;											// Estat en el que es troba el apps
-	uint8_t		Perc_Pright = (RPotX - Rpotmin)/((Rpotmax - Rpotmin)/100);  // Quantitat de bits que canvia el senyal del potenciometre dret per cada % que trepitjes el pedal dret.
-	uint8_t		Perc_Pleft = (LPotX - Lpotmin)/((Lpotmax - Lpotmin)/100);   // Quantitat de bits que canvia el senyal del potenciometre esquerra per cada % que trepitjes el pedal esquerra.
-	uint32_t 	APPS_temp=0;												// Temps (en ms) en què entrem a STEP1
+	static uint8_t 	switch_state_a = 0;																			// Estat en el que es troba el apps
+	uint8_t		Perc_Pright = (RPotX - Rpotmin)/((Rpotmax - Rpotmin)/100);  									// Quantitat de bits que canvia el senyal del potenciometre dret per cada % que trepitjes el pedal dret.
+	uint8_t		Perc_Pleft = (LPotX - Lpotmin)/((Lpotmax - Lpotmin)/100);   									// Quantitat de bits que canvia el senyal del potenciometre esquerra per cada % que trepitjes el pedal esquerra.
+	uint32_t 	APPS_temp=0;																					// Temps (en ms) en què entrem a STEP1
 	int32_t diffperc = (int32_t)Perc_Pright - (int32_t)Perc_Pleft;
 
 	if (diffperc < 0){
 		diffperc = -diffperc;
 	}
 
-	switch(switch_state_a) 												// Estructura de control per gestionar en quin punt de la lògica APPS ens trobem.
+	switch(switch_state_a) 																						// Estructura de control per gestionar en quin punt de la lògica APPS ens trobem.
 	{
 
 	// Estat base: Tot funciona correctament.
@@ -31,44 +30,45 @@ static uint8_t APPS(DICCF_t *DICCF, DICCP_t *DICCP){
 		 * Si RPotX (100) < LPotX (500), la resta directa donaria un valor positiu gegant (overflow).
 		 * Amb (int32_t), la resta dóna -400, i abs() pot convertir-ho correctament a 400.*/
 		if( diffperc >= 10){
-			APPS_temp = HAL_GetTick(); 															// Error detectat: Guardem el "timestamp" actual en mil·lisegons.
-			switch_state_a = 1;}   																// Passem a l'estat de verificació (comprovar si l'error dura 500ms).
-		else if( RPotX <= Rpotmin || LPotX <= Lpotmin || RPotX >= Rpotmax || LPotX >= Lpotmax){		// Comprova si els sensors estan fora de rang (per sota de 10 o per sobre de 1000).
-			switch_state_a = 2;}   																// Error crític immediat (ex: cable tallat), anem a l'estat de falla.
+			APPS_temp = HAL_GetTick(); 																			// Error detectat: Guardem el "timestamp" actual en mil·lisegons.
+			switch_state_a = 1;}   																				// Passem a l'estat de verificació (comprovar si l'error dura 500ms).
+		else if( RPotX <= Rpotmin || LPotX <= Lpotmin || RPotX >= Rpotmax || LPotX >= Lpotmax){					// Comprova si els sensors estan fora de rang (per sota de 10 o per sobre de 1000).
+			switch_state_a = 2;}   																				// Error crític immediat (ex: cable tallat), anem a l'estat de falla.
 		break;
 
 		// Estat de "confirmació" d'error de plausibilitat.
 	case 1:
 		if ((HAL_GetTick() - APPS_temp) >= 100)
-		{										// Si la diferència ha persistit durant 500ms o més (regla T.4.2 de Formula Student).
+		{																										// Si la diferència ha persistit durant 500ms o més (regla T.4.2 de Formula Student).
 			switch_state_a = 2;
-		}   													// L'error és real i persistent, bloquegem el sistema.
+		}   																									// L'error és real i persistent, bloquegem el sistema.
 		else if (( diffperc ) <= 10)
-		{				// Si la diferència torna a valors acceptables abans dels 500ms.
+		{																										// Si la diferència torna a valors acceptables abans dels 500ms.
 			switch_state_a = 0;
-		} 														// Ha estat un soroll transitori, tornem a l'estat normal.
+		} 																										// Ha estat un soroll transitori, tornem a l'estat normal.
 		break;
 
 		// Estat d'error crític (Shutdown).
 	case 2:
-		switch_state_a = 2; 															// Bucle infinit en aquest estat: el cotxe no pot accelerar fins a reiniciar.
+		switch_state_a = 2; 																					// Bucle infinit en aquest estat: el cotxe no pot accelerar fins a reiniciar.
 		break;
 	}
 	// Sortides segons l'estat
 	if (switch_state_a == 0 || switch_state_a == 1)
 	{
 		return 0;
+		DICCP -> FpERRapps = 0;
 	}
 	else
 	{
 		return 1;
+		DICCP -> FpERRapps = 1;
 	}
 }
 
 void LEDs(DICCF_t *DICCF, DICCP_t *DICCP){
-/*------------VALORS DE SENYALS-----------*/							// Valor de si hi ha error de IMD							    // Estat de l'entrada SDC (Safety Disconnect / Shutdown circuit)
-uint8_t 	BMSstate_error = DICCP-> FpINTsbms;							// Valor del state de la BMS
-	if (BMSstate_error == 1){
+/*------------VALORS DE SENYALS-----------*/
+	if (DICCP-> FpINTsbms == 1){
 		HAL_GPIO_WritePin(GPIOB, GPIO_PIN_15, GPIO_PIN_SET);
 	}
 	else{
@@ -77,8 +77,8 @@ uint8_t 	BMSstate_error = DICCP-> FpINTsbms;							// Valor del state de la BMS
 }
 
 void Display(DICCF_t *DICCF, DICCP_t *DICCP){
-uint8_t 	BMSerror = DICCP-> FpINTebms;								// Valor de si hi ha error de BMS
-uint8_t 	IMDerror = DICCP-> FpINTeimd;								// Valor de si hi ha error de IMD
+uint8_t 	BMSerror = DICCP-> SpERRbms;								// Valor de si hi ha error de BMS
+uint8_t 	IMDerror = DICCP-> SpERRbimd;								// Valor de si hi ha error de IMD
 uint8_t 	APPerror = DICCP-> FpERRapps;								// Valor de si hi ha error de APPS
 	// fila 0 pantalla
 	lcd_send_cmd (0x80|0x00);
@@ -128,47 +128,44 @@ uint8_t 	APPerror = DICCP-> FpERRapps;								// Valor de si hi ha error de APPS
 
 void R2D(DICCF_t *DICCF, DICCP_t *DICCP){
 /*------------VARIABLES R2D-----------*/
-uint8_t 	TSoff  = DICCP->FpINTtsoff;							// Estat del tsoff (pressió OK)
-uint8_t 	Button_R2DX = DICCP->FpINTr2d; 						// Estat del botó Ready To Drive
-uint32_t 	Brake = DICCF->FfANLbrake;							// Valor que llegeix el ADC del sensor de fre						// Estat final que determinarà si el cotxe està ready to drive o no
-uint8_t 	switch_state_r = 0;									// Estat en el que es troba el r2d
-uint32_t 	temp_R2D = 0;										// Temps (en ms) en què entrem a STEP2
+uint8_t 	switch_state_r = 0;						// Estat en el que es troba el r2d
+uint32_t 	temp_R2D = 0;							// Temps (en ms) en què entrem a STEP2
 
-	switch (switch_state_r)										// Màquina d'estats finits per la seqüència Ready To Drive
+	switch (switch_state_r)							// Màquina d'estats finits per la seqüència Ready To Drive
 	{
-		// Condicions per passar d'inicial a STEP1: fre premut (Brake >= 300), SDC actiu (SDC != 0), botó R2D premut (Button_R2DX != 0),
-		//Aire positiu OK (TSoff != 0) i sense error d'APPS (!error_apps)
+		// Condicions per passar d'inicial a STEP1: fre premut (DICCF->FfANLbrake >= 300), SDC actiu (SDC != 0), botó R2D premut (DICCP->FpINTr2d != 0),
+		//Air positiu OK (DICCP->FpINTtsoff != 0) i sense error d'APPS (!error_apps)
 		case 0:
-			if (Brake >= 300 && DICCP-> DpSDC == 1 && Button_R2DX == 1 && TSoff == 1 && APPS(DICCF, DICCP) == 0){
+			if (DICCF->FfANLbrake >= 300 && DICCP-> DpSDC == 1 && DICCP->FpINTr2d == 1 && DICCP->FpINTtsoff == 1 && APPS(DICCF, DICCP) == 0){
 				switch_state_r = 1;
 			}
 			break;
 
-		// En STEP1 exigim: Fre continua premut, SDC actiu, botó alliberat (!Button_R2DX), air positiu OK i sense error APPS
+		// En STEP1 exigim: Fre continua premut, SDC actiu, botó alliberat (!DICCP->FpINTr2d), air positiu OK i sense error APPS
 		case 1:
-			if (Brake >= 300 && DICCP-> DpSDC == 1 && Button_R2DX != 1 && TSoff == 1 && APPS(DICCF, DICCP) == 0)
+			if (DICCF->FfANLbrake >= 300 && DICCP-> DpSDC == 1 && DICCP->FpINTr2d != 1 && DICCP->FpINTtsoff == 1 && APPS(DICCF, DICCP) == 0)
 			{
-				temp_R2D = HAL_GetTick();						// HAL_GetTick() dona el nombre de mil·lisegons des de HAL_Init() (és un contador global de temps del sistema incrementat per l'interrupt de SysTick).
-				switch_state_r = 2;								// Passem a STEP2 (finestra d'espera de 2 segons)
+				temp_R2D = HAL_GetTick();																															// HAL_GetTick() dona el nombre de mil·lisegons des de HAL_Init() (és un contador global de temps del sistema incrementat per l'interrupt de SysTick).
+				switch_state_r = 2;																																	// Passem a STEP2 (finestra d'espera de 2 segons)
 			}
-			else if (DICCP-> DpSDC == 0 || TSoff == 0){ 					// Si es perd SDC, air positiu o hi ha error d'APPS, tornem a l'estat inicial
+			else if (DICCP-> DpSDC == 0 || DICCP->FpINTtsoff == 0){ 																								// Si es perd SDC, air positiu o hi ha error d'APPS, tornem a l'estat inicial
 				switch_state_r = 0;
 			}
 			break;
 
 		// En STEP2: SDC actiu, botó segueix alliberat, air positiu OK, sense error APPS i han passat com a mínim 2000 ms (2 s) des de temp_R2D
 		case 2:
-			if (Brake >= 300 && DICCP-> DpSDC == 1 && TSoff == 1 && (HAL_GetTick() - temp_R2D) >= 2000 && APPS(DICCF, DICCP) == 0){				// Aquí, determinem el temps que s'ha avançat respecte el punt inicial
-				switch_state_r = 3;																			// Si es compleix tot això, passem a STEP3
+			if (DICCF->FfANLbrake >= 300 && DICCP-> DpSDC == 1 && DICCP->FpINTtsoff == 1 && (HAL_GetTick() - temp_R2D) >= 2000 && APPS(DICCF, DICCP) == 0){			// Aquí, determinem el temps que s'ha avançat respecte el punt inicial
+				switch_state_r = 3;																																	// Si es compleix tot això, passem a STEP3
 			}
-			else if (DICCP-> DpSDC == 0 || TSoff == 0 || Brake <= 300)	{											// Qualsevol pèrdua de SDC, air positiu o error APPS ens fa tornar a inicial
+			else if (DICCP-> DpSDC == 0 || DICCP->FpINTtsoff == 0 || DICCF->FfANLbrake <= 300)	{																	// Qualsevol pèrdua de SDC, air positiu o error APPS ens fa tornar a inicial
 				switch_state_r = 0;
 			}
 			break;
 
 		// En Ready To Drive, vigilem contínuament que: SDC segueixi actiu, air positiu OK i sense error d'APPS
 		case 3:
-			if (DICCP-> DpSDC == 0 || TSoff == 0 || APPS(DICCF, DICCP) == 0){
+			if (DICCP-> DpSDC == 0 || DICCP->FpINTtsoff == 0 || APPS(DICCF, DICCP) == 0){
 				switch_state_r = 0;
 			}
 			break;

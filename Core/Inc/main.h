@@ -148,10 +148,13 @@ typedef struct {
 	uint8_t  FpDIGrefrion  ;
 	uint8_t  FpDIGrefriauto;
 	uint8_t  FpDIGr2d      ;
+	uint8_t  FpINTtsoff	   ;
 	uint16_t FpSHU         ;
 
 	/* ================ HVDB ================ */
 	uint8_t  DpSDC		   ;
+	uint8_t  SpERRbms	   ;
+	uint8_t  SpERRbimd	   ;
 } DICCP_t;
 /* USER CODE END Private defines */
 

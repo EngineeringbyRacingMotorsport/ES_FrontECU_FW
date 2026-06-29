@@ -13,14 +13,13 @@ void CAN_Msg_Maker(DICCP_t *DICCP, uint8_t *Msg1, uint8_t *Msg2)
 	Msg1[4] |= (DICCP->FpANLbrake & 0xFF);
 
 	/*---------------MISSATGE 2----------------*/
-	Msg2[0] |= ((DICCP->FpINTebms    & 0x01) << 0);
-	Msg2[0] |= ((DICCP->FpINTeimd    & 0x01) << 1);
+	Msg2[0] |= ((DICCP->SpERRbms     & 0x01) << 0);
+	Msg2[0] |= ((DICCP->SpERRbimd    & 0x01) << 1);
 	Msg2[0] |= ((DICCP->FpINTtsoff   & 0x01) << 2);
 	Msg2[0] |= ((DICCP->FpINTsbms    & 0x01) << 3);
-	Msg2[0] |= ((DICCP->FpINTpre     & 0x01) << 4);
-	Msg2[0] |= ((DICCP->FpINTr2d     & 0x01) << 5);
-	Msg2[0] |= ((DICCP->FpINTmenu    & 0x01) << 6);
-	Msg2[0] |= ((DICCP->FpDIGmicrosd & 0x01) << 7);
+	Msg2[0] |= ((DICCP->FpINTr2d     & 0x01) << 4);
+	Msg2[0] |= ((DICCP->FpINTmenu    & 0x01) << 5);
+	Msg2[0] |= ((DICCP->FpDIGmicrosd & 0x01) << 6);
 
 	Msg2[1] |= ((DICCP->FpSDCinertia & 0x01) << 0);
 	Msg2[1] |= ((DICCP->FpSDCbots    & 0x01) << 1);
