@@ -24,11 +24,11 @@
 #include "can.h"
 #include "f2p.h"
 #include "p2f.h"
-#include "i2c-lcd.h"
+
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-
+#include "i2c-lcd.h"
 
 /* USER CODE END Includes */
 
@@ -58,10 +58,7 @@ FDCAN_HandleTypeDef hfdcan1;
 I2C_HandleTypeDef hi2c2;
 
 /* USER CODE BEGIN PV */
-#define DMA_CH1 3
-uint32_t DICCDMA1[DMA_CH1];
-#define DMA_CH2 1
-uint32_t DICCDMA2[DMA_CH2];
+
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -120,9 +117,6 @@ int main(void)
   DICCP_t DICCP = {0};
 
   CAN_Init_Custom(&hfdcan1);
-
-  HAL_ADCEx_Calibration_Start(&hadc1, ADC_SINGLE_ENDED);
-  HAL_ADCEx_Calibration_Start(&hadc2, ADC_SINGLE_ENDED);
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -132,29 +126,18 @@ int main(void)
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
-	  HAL_GPIO_WritePin(GPIOB, FfSUPled_Pin, GPIO_PIN_SET);
-	  HAL_ADC_Start_DMA(&hadc1, (uint32_t*)DICCDMA1, DMA_CH1);
-	  HAL_ADC_Start_DMA(&hadc2, (uint32_t*)DICCDMA2, DMA_CH2);
 
 	  uint8_t Msg1[5] = {0};
 	  uint8_t Msg2[5] = {0};
 
 	  DIG2DICCF(&DICCF);
 
-	  DMA2DICCF(&DICCF, DICCDMA1, DICCDMA2);
-
 	  DICCF2DICCP(&DICCF, &DICCP);
 
 	  CAN_Msg_Maker(&DICCP, Msg1, Msg2);
 
-	  LEDs(&DICCF, &DICCP);
-
-	  //Display(&DICCF, &DICCP);
-
-	  R2D(&DICCF, &DICCP);
-
-	  CAN_Send(&hfdcan1, 0x100, Msg1, 5);
-	  CAN_Send(&hfdcan1, 0x101, Msg2, 5);
+	  CAN_Send(&hfdcan1, 0x300, Msg1, 5);
+	  CAN_Send(&hfdcan1, 0x301, Msg2, 5);
 
 	  HAL_Delay(10);
   }
@@ -548,7 +531,6 @@ void Error_Handler(void)
   /* USER CODE BEGIN Error_Handler_Debug */
   /* User can add his own implementation to report the HAL error return state */
   __disable_irq();
-  HAL_NVIC_SystemReset();
   while (1)
   {
   }

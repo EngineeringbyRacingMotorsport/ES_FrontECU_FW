@@ -14,7 +14,7 @@ void DIG2DICCF(DICCF_t *DICCF){
 	DICCF->FfSDCbots      =  HAL_GPIO_ReadPin(GPIOB, FfSDCbots_Pin      );
 	DICCF->FfSDCcsdb      =  HAL_GPIO_ReadPin(GPIOB, FfSDCcsdb_Pin      );
 	DICCF->FfDIGrefrion   =  HAL_GPIO_ReadPin(GPIOA, FfDIGrefrion_Pin   );
-	DICCF->FfINTr2d       = !HAL_GPIO_ReadPin(GPIOB, FfINTr2d_Pin       );
+	DICCF->FfINTr2d       =! HAL_GPIO_ReadPin(GPIOB, FfINTr2d_Pin       );
 };
 
 void DICCF2DICCP(DICCF_t *DICCF, DICCP_t *DICCP) {
