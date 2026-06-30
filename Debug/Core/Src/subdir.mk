@@ -7,7 +7,6 @@
 C_SRCS += \
 ../Core/Src/can.c \
 ../Core/Src/f2p.c \
-../Core/Src/i2c-lcd.c \
 ../Core/Src/main.c \
 ../Core/Src/p2f.c \
 ../Core/Src/stm32g4xx_hal_msp.c \
@@ -19,7 +18,6 @@ C_SRCS += \
 OBJS += \
 ./Core/Src/can.o \
 ./Core/Src/f2p.o \
-./Core/Src/i2c-lcd.o \
 ./Core/Src/main.o \
 ./Core/Src/p2f.o \
 ./Core/Src/stm32g4xx_hal_msp.o \
@@ -31,7 +29,6 @@ OBJS += \
 C_DEPS += \
 ./Core/Src/can.d \
 ./Core/Src/f2p.d \
-./Core/Src/i2c-lcd.d \
 ./Core/Src/main.d \
 ./Core/Src/p2f.d \
 ./Core/Src/stm32g4xx_hal_msp.d \
@@ -48,7 +45,7 @@ Core/Src/%.o Core/Src/%.su Core/Src/%.cyclo: ../Core/Src/%.c Core/Src/subdir.mk
 clean: clean-Core-2f-Src
 
 clean-Core-2f-Src:
-	-$(RM) ./Core/Src/can.cyclo ./Core/Src/can.d ./Core/Src/can.o ./Core/Src/can.su ./Core/Src/f2p.cyclo ./Core/Src/f2p.d ./Core/Src/f2p.o ./Core/Src/f2p.su ./Core/Src/i2c-lcd.cyclo ./Core/Src/i2c-lcd.d ./Core/Src/i2c-lcd.o ./Core/Src/i2c-lcd.su ./Core/Src/main.cyclo ./Core/Src/main.d ./Core/Src/main.o ./Core/Src/main.su ./Core/Src/p2f.cyclo ./Core/Src/p2f.d ./Core/Src/p2f.o ./Core/Src/p2f.su ./Core/Src/stm32g4xx_hal_msp.cyclo ./Core/Src/stm32g4xx_hal_msp.d ./Core/Src/stm32g4xx_hal_msp.o ./Core/Src/stm32g4xx_hal_msp.su ./Core/Src/stm32g4xx_it.cyclo ./Core/Src/stm32g4xx_it.d ./Core/Src/stm32g4xx_it.o ./Core/Src/stm32g4xx_it.su ./Core/Src/syscalls.cyclo ./Core/Src/syscalls.d ./Core/Src/syscalls.o ./Core/Src/syscalls.su ./Core/Src/sysmem.cyclo ./Core/Src/sysmem.d ./Core/Src/sysmem.o ./Core/Src/sysmem.su ./Core/Src/system_stm32g4xx.cyclo ./Core/Src/system_stm32g4xx.d ./Core/Src/system_stm32g4xx.o ./Core/Src/system_stm32g4xx.su
+	-$(RM) ./Core/Src/can.cyclo ./Core/Src/can.d ./Core/Src/can.o ./Core/Src/can.su ./Core/Src/f2p.cyclo ./Core/Src/f2p.d ./Core/Src/f2p.o ./Core/Src/f2p.su ./Core/Src/main.cyclo ./Core/Src/main.d ./Core/Src/main.o ./Core/Src/main.su ./Core/Src/p2f.cyclo ./Core/Src/p2f.d ./Core/Src/p2f.o ./Core/Src/p2f.su ./Core/Src/stm32g4xx_hal_msp.cyclo ./Core/Src/stm32g4xx_hal_msp.d ./Core/Src/stm32g4xx_hal_msp.o ./Core/Src/stm32g4xx_hal_msp.su ./Core/Src/stm32g4xx_it.cyclo ./Core/Src/stm32g4xx_it.d ./Core/Src/stm32g4xx_it.o ./Core/Src/stm32g4xx_it.su ./Core/Src/syscalls.cyclo ./Core/Src/syscalls.d ./Core/Src/syscalls.o ./Core/Src/syscalls.su ./Core/Src/sysmem.cyclo ./Core/Src/sysmem.d ./Core/Src/sysmem.o ./Core/Src/sysmem.su ./Core/Src/system_stm32g4xx.cyclo ./Core/Src/system_stm32g4xx.d ./Core/Src/system_stm32g4xx.o ./Core/Src/system_stm32g4xx.su
 
 .PHONY: clean-Core-2f-Src
 
