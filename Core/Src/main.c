@@ -62,6 +62,7 @@ I2C_HandleTypeDef hi2c2;
 uint32_t DICCDMA1[DMA_CH1];
 #define DMA_CH2 1
 uint32_t DICCDMA2[DMA_CH2];
+uint8_t getinstantick = 0;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -98,7 +99,7 @@ int main(void)
   HAL_Init();
 
   /* USER CODE BEGIN Init */
-
+  HAL_Delay(100);
   /* USER CODE END Init */
 
   /* Configure the system clock */
@@ -153,10 +154,12 @@ int main(void)
 
 	  R2D(&DICCF, &DICCP);
 
-	  CAN_Send(&hfdcan1, 0x100, Msg1, 5);
-	  CAN_Send(&hfdcan1, 0x101, Msg2, 5);
-
-	  HAL_Delay(10);
+	  if(HAL_GetTick()-getinstantick >= 100)
+	  {
+		  CAN_Send(&hfdcan1, 0x100, Msg1, 5);
+		  CAN_Send(&hfdcan1, 0x101, Msg2, 5);
+		  getinstantick = HAL_GetTick();
+	  }
   }
   /* USER CODE END 3 */
 }

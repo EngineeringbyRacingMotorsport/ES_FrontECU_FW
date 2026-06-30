@@ -52,10 +52,26 @@ void HAL_FDCAN_RxFifo0Callback(FDCAN_HandleTypeDef *hfdcan, uint32_t RxFifo0ITs)
 
 HAL_StatusTypeDef CAN_Send(FDCAN_HandleTypeDef *hfdcan, uint32_t id, uint8_t *data, uint32_t len) {
     FDCAN_TxHeaderTypeDef txHeader;
+    uint32_t dlcValue;
+    
+    // Convert byte length to DLC format for FDCAN
+    switch(len) {
+        case 0: dlcValue = FDCAN_DLC_BYTES_0; break;
+        case 1: dlcValue = FDCAN_DLC_BYTES_1; break;
+        case 2: dlcValue = FDCAN_DLC_BYTES_2; break;
+        case 3: dlcValue = FDCAN_DLC_BYTES_3; break;
+        case 4: dlcValue = FDCAN_DLC_BYTES_4; break;
+        case 5: dlcValue = FDCAN_DLC_BYTES_5; break;
+        case 6: dlcValue = FDCAN_DLC_BYTES_6; break;
+        case 7: dlcValue = FDCAN_DLC_BYTES_7; break;
+        case 8: dlcValue = FDCAN_DLC_BYTES_8; break;
+        default: dlcValue = FDCAN_DLC_BYTES_8; break;
+    }
+    
     txHeader.Identifier = id;
     txHeader.IdType = FDCAN_STANDARD_ID;
     txHeader.TxFrameType = FDCAN_DATA_FRAME;
-    txHeader.DataLength = len;
+    txHeader.DataLength = dlcValue;
     txHeader.ErrorStateIndicator = FDCAN_ESI_ACTIVE;
     txHeader.BitRateSwitch = FDCAN_BRS_OFF;
     txHeader.FDFormat = FDCAN_CLASSIC_CAN;
