@@ -42,14 +42,13 @@
 /* USER CODE END PM */
 
 /* Private variables ---------------------------------------------------------*/
-ADC_HandleTypeDef hadc2;
-DMA_HandleTypeDef hdma_adc2;
+ADC_HandleTypeDef hadc1;
+DMA_HandleTypeDef hdma_adc1;
 
 FDCAN_HandleTypeDef hfdcan1;
 
 /* USER CODE BEGIN PV */
-#define DMA_CH2 2
-uint32_t DICCDMA[DMA_CH2];
+uint32_t DICCDMA[3];
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -57,7 +56,7 @@ void SystemClock_Config(void);
 static void MX_GPIO_Init(void);
 static void MX_DMA_Init(void);
 static void MX_FDCAN1_Init(void);
-static void MX_ADC2_Init(void);
+static void MX_ADC1_Init(void);
 /* USER CODE BEGIN PFP */
 
 /* USER CODE END PFP */
@@ -98,20 +97,13 @@ int main(void)
   MX_GPIO_Init();
   MX_DMA_Init();
   MX_FDCAN1_Init();
-  MX_ADC2_Init();
+  MX_ADC1_Init();
   /* USER CODE BEGIN 2 */
   DICCF_t DICCF = {0};
   DICCP_t DICCP = {0};
   CAN_Init_Custom(&hfdcan1);
-  HAL_ADCEx_Calibration_Start(&hadc2, ADC_SINGLE_ENDED);
 
-  Inverter_Request_Data(&hfdcan1, 0x30, 10); //RPM
-  Inverter_Request_Data(&hfdcan1, 0x48, 10); //I
-  Inverter_Request_Data(&hfdcan1, 0xA0, 10);// Par
-  Inverter_Request_Data(&hfdcan1, 0xA8, 10); //V
-  Inverter_Request_Data(&hfdcan1, 0x4A, 200);//T IGBT
-  Inverter_Request_Data(&hfdcan1, 0x49, 200);//T Mot
-  Inverter_Request_Data(&hfdcan1, 0x8F, 200);// Err
+
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -121,11 +113,12 @@ int main(void)
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
-	  HAL_ADC_Start_DMA(&hadc2, DICCDMA, DMA_CH2);
+	  HAL_GPIO_WritePin(GPIOB, FfSUPled_Pin, GPIO_PIN_SET);
+
+	  HAL_ADC_Start_DMA(&hadc1, DICCDMA, 3);
 
 	  uint8_t Msg1[5] = {0};
-	  uint8_t Msg2[8] = {0};
-	  uint8_t Msg3[8] = {0};
+	  uint8_t Msg2[5] = {0};
 
 	  DIG2DICCF(&DICCF);
 
@@ -133,17 +126,13 @@ int main(void)
 
 	  DICCF2DICCP(&DICCF, &DICCP);
 
-	  CAN_Msg_Maker(&DICCP, Msg1, Msg2, Msg3);
+	  CAN_Msg_Maker(&DICCP, Msg1, Msg2);
 
-	  CAN_Send(&hfdcan1, 0x201, Msg1, 5);
+	  CAN_Send(&hfdcan1, 0x101, Msg1, 5);
+	  CAN_Send(&hfdcan1, 0x102, Msg2, 8);
 
-	  CAN_Send(&hfdcan1, 0x202, Msg2, 8);
+	  R2D(&DICCF, &DICCP);
 
-	  CAN_Send(&hfdcan1, 0x203, Msg3, 8);
-
-	  PLC(&DICCP);
-
-	  HAL_Delay(10);
   }
   /* USER CODE END 3 */
 }
@@ -195,69 +184,88 @@ void SystemClock_Config(void)
 }
 
 /**
-  * @brief ADC2 Initialization Function
+  * @brief ADC1 Initialization Function
   * @param None
   * @retval None
   */
-static void MX_ADC2_Init(void)
+static void MX_ADC1_Init(void)
 {
 
-  /* USER CODE BEGIN ADC2_Init 0 */
+  /* USER CODE BEGIN ADC1_Init 0 */
 
-  /* USER CODE END ADC2_Init 0 */
+  /* USER CODE END ADC1_Init 0 */
 
+  ADC_MultiModeTypeDef multimode = {0};
   ADC_ChannelConfTypeDef sConfig = {0};
 
-  /* USER CODE BEGIN ADC2_Init 1 */
+  /* USER CODE BEGIN ADC1_Init 1 */
 
-  /* USER CODE END ADC2_Init 1 */
+  /* USER CODE END ADC1_Init 1 */
 
   /** Common config
   */
-  hadc2.Instance = ADC2;
-  hadc2.Init.ClockPrescaler = ADC_CLOCK_SYNC_PCLK_DIV2;
-  hadc2.Init.Resolution = ADC_RESOLUTION_12B;
-  hadc2.Init.DataAlign = ADC_DATAALIGN_RIGHT;
-  hadc2.Init.GainCompensation = 0;
-  hadc2.Init.ScanConvMode = ADC_SCAN_ENABLE;
-  hadc2.Init.EOCSelection = ADC_EOC_SINGLE_CONV;
-  hadc2.Init.LowPowerAutoWait = DISABLE;
-  hadc2.Init.ContinuousConvMode = ENABLE;
-  hadc2.Init.NbrOfConversion = 2;
-  hadc2.Init.DiscontinuousConvMode = DISABLE;
-  hadc2.Init.ExternalTrigConv = ADC_SOFTWARE_START;
-  hadc2.Init.ExternalTrigConvEdge = ADC_EXTERNALTRIGCONVEDGE_NONE;
-  hadc2.Init.DMAContinuousRequests = DISABLE;
-  hadc2.Init.Overrun = ADC_OVR_DATA_PRESERVED;
-  hadc2.Init.OversamplingMode = DISABLE;
-  if (HAL_ADC_Init(&hadc2) != HAL_OK)
+  hadc1.Instance = ADC1;
+  hadc1.Init.ClockPrescaler = ADC_CLOCK_SYNC_PCLK_DIV2;
+  hadc1.Init.Resolution = ADC_RESOLUTION_12B;
+  hadc1.Init.DataAlign = ADC_DATAALIGN_RIGHT;
+  hadc1.Init.GainCompensation = 0;
+  hadc1.Init.ScanConvMode = ADC_SCAN_ENABLE;
+  hadc1.Init.EOCSelection = ADC_EOC_SINGLE_CONV;
+  hadc1.Init.LowPowerAutoWait = DISABLE;
+  hadc1.Init.ContinuousConvMode = ENABLE;
+  hadc1.Init.NbrOfConversion = 3;
+  hadc1.Init.DiscontinuousConvMode = DISABLE;
+  hadc1.Init.ExternalTrigConv = ADC_SOFTWARE_START;
+  hadc1.Init.ExternalTrigConvEdge = ADC_EXTERNALTRIGCONVEDGE_NONE;
+  hadc1.Init.DMAContinuousRequests = DISABLE;
+  hadc1.Init.Overrun = ADC_OVR_DATA_PRESERVED;
+  hadc1.Init.OversamplingMode = DISABLE;
+  if (HAL_ADC_Init(&hadc1) != HAL_OK)
+  {
+    Error_Handler();
+  }
+
+  /** Configure the ADC multi-mode
+  */
+  multimode.Mode = ADC_MODE_INDEPENDENT;
+  if (HAL_ADCEx_MultiModeConfigChannel(&hadc1, &multimode) != HAL_OK)
   {
     Error_Handler();
   }
 
   /** Configure Regular Channel
   */
-  sConfig.Channel = ADC_CHANNEL_4;
+  sConfig.Channel = ADC_CHANNEL_1;
   sConfig.Rank = ADC_REGULAR_RANK_1;
   sConfig.SamplingTime = ADC_SAMPLETIME_247CYCLES_5;
   sConfig.SingleDiff = ADC_SINGLE_ENDED;
   sConfig.OffsetNumber = ADC_OFFSET_NONE;
   sConfig.Offset = 0;
-  if (HAL_ADC_ConfigChannel(&hadc2, &sConfig) != HAL_OK)
+  if (HAL_ADC_ConfigChannel(&hadc1, &sConfig) != HAL_OK)
   {
     Error_Handler();
   }
 
   /** Configure Regular Channel
   */
+  sConfig.Channel = ADC_CHANNEL_2;
   sConfig.Rank = ADC_REGULAR_RANK_2;
-  if (HAL_ADC_ConfigChannel(&hadc2, &sConfig) != HAL_OK)
+  if (HAL_ADC_ConfigChannel(&hadc1, &sConfig) != HAL_OK)
   {
     Error_Handler();
   }
-  /* USER CODE BEGIN ADC2_Init 2 */
 
-  /* USER CODE END ADC2_Init 2 */
+  /** Configure Regular Channel
+  */
+  sConfig.Channel = ADC_CHANNEL_15;
+  sConfig.Rank = ADC_REGULAR_RANK_3;
+  if (HAL_ADC_ConfigChannel(&hadc1, &sConfig) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  /* USER CODE BEGIN ADC1_Init 2 */
+
+  /* USER CODE END ADC1_Init 2 */
 
 }
 
@@ -340,30 +348,40 @@ static void MX_GPIO_Init(void)
   __HAL_RCC_GPIOB_CLK_ENABLE();
 
   /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(GPIOC, RfSTArefriaccu_Pin|RfSTArefriinverter_Pin|RfSTArefrimot_Pin, GPIO_PIN_RESET);
+  HAL_GPIO_WritePin(FfINTbuzz_GPIO_Port, FfINTbuzz_Pin, GPIO_PIN_RESET);
 
   /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(GPIOA, RfSTAbrkledR_Pin|RfSTAbrkledG_Pin|RfSTAbrkledB_Pin, GPIO_PIN_RESET);
+  HAL_GPIO_WritePin(FfDIGr2d_GPIO_Port, FfDIGr2d_Pin, GPIO_PIN_RESET);
 
-  /*Configure GPIO pins : RfSTArefriaccu_Pin RfSTArefriinverter_Pin RfSTArefrimot_Pin */
-  GPIO_InitStruct.Pin = RfSTArefriaccu_Pin|RfSTArefriinverter_Pin|RfSTArefrimot_Pin;
+  /*Configure GPIO pin Output Level */
+  HAL_GPIO_WritePin(FfSUPled_GPIO_Port, FfSUPled_Pin, GPIO_PIN_RESET);
+
+  /*Configure GPIO pin : FfINTbuzz_Pin */
+  GPIO_InitStruct.Pin = FfINTbuzz_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
-  HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
+  HAL_GPIO_Init(FfINTbuzz_GPIO_Port, &GPIO_InitStruct);
 
-  /*Configure GPIO pins : RfSTAbrkledR_Pin RfSTAbrkledG_Pin RfSTAbrkledB_Pin */
-  GPIO_InitStruct.Pin = RfSTAbrkledR_Pin|RfSTAbrkledG_Pin|RfSTAbrkledB_Pin;
+  /*Configure GPIO pin : FfDIGr2d_Pin */
+  GPIO_InitStruct.Pin = FfDIGr2d_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
-  HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
+  HAL_GPIO_Init(FfDIGr2d_GPIO_Port, &GPIO_InitStruct);
 
-  /*Configure GPIO pins : RfSDChvd_Pin RfSDCtsms_Pin RfSDClsdb_Pin RfSDCrsdb_Pin */
-  GPIO_InitStruct.Pin = RfSDChvd_Pin|RfSDCtsms_Pin|RfSDClsdb_Pin|RfSDCrsdb_Pin;
+  /*Configure GPIO pin : FfSUPled_Pin */
+  GPIO_InitStruct.Pin = FfSUPled_Pin;
+  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+  HAL_GPIO_Init(FfSUPled_GPIO_Port, &GPIO_InitStruct);
+
+  /*Configure GPIO pin : FfINTr2d_Pin */
+  GPIO_InitStruct.Pin = FfINTr2d_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
-  HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
+  HAL_GPIO_Init(FfINTr2d_GPIO_Port, &GPIO_InitStruct);
 
   /* USER CODE BEGIN MX_GPIO_Init_2 */
 

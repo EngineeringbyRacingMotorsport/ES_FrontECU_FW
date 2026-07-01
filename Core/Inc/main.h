@@ -57,87 +57,83 @@ void Error_Handler(void);
 /* USER CODE END EFP */
 
 /* Private defines -----------------------------------------------------------*/
-#define RfSTArefriaccu_Pin GPIO_PIN_13
-#define RfSTArefriaccu_GPIO_Port GPIOC
-#define RfSTArefriinverter_Pin GPIO_PIN_14
-#define RfSTArefriinverter_GPIO_Port GPIOC
-#define RfSTArefrimot_Pin GPIO_PIN_15
-#define RfSTArefrimot_GPIO_Port GPIOC
-#define RfSTAbrkledR_Pin GPIO_PIN_4
-#define RfSTAbrkledR_GPIO_Port GPIOA
-#define RfSTAbrkledG_Pin GPIO_PIN_5
-#define RfSTAbrkledG_GPIO_Port GPIOA
-#define RfSTAbrkledB_Pin GPIO_PIN_6
-#define RfSTAbrkledB_GPIO_Port GPIOA
-#define RfSHU_Pin GPIO_PIN_7
-#define RfSHU_GPIO_Port GPIOA
-#define RfSIGlvs_Pin GPIO_PIN_2
-#define RfSIGlvs_GPIO_Port GPIOB
-#define RfSDChvd_Pin GPIO_PIN_11
-#define RfSDChvd_GPIO_Port GPIOB
-#define RfSDCtsms_Pin GPIO_PIN_12
-#define RfSDCtsms_GPIO_Port GPIOB
-#define RfSDClsdb_Pin GPIO_PIN_13
-#define RfSDClsdb_GPIO_Port GPIOB
-#define RfSDCrsdb_Pin GPIO_PIN_14
-#define RfSDCrsdb_GPIO_Port GPIOB
+#define FfINTbuzz_Pin GPIO_PIN_13
+#define FfINTbuzz_GPIO_Port GPIOC
+#define FfANLRpot_Pin GPIO_PIN_0
+#define FfANLRpot_GPIO_Port GPIOA
+#define FfANLLpot_Pin GPIO_PIN_1
+#define FfANLLpot_GPIO_Port GPIOA
+#define FfDIGr2d_Pin GPIO_PIN_4
+#define FfDIGr2d_GPIO_Port GPIOA
+#define FfANLbrake_Pin GPIO_PIN_0
+#define FfANLbrake_GPIO_Port GPIOB
+#define FfSUPled_Pin GPIO_PIN_11
+#define FfSUPled_GPIO_Port GPIOB
+#define FfINTr2d_Pin GPIO_PIN_9
+#define FfINTr2d_GPIO_Port GPIOB
 
 /* USER CODE BEGIN Private defines */
 
-typedef struct {
-		//Analog
-		uint16_t RfSIGlvs;
-		uint16_t RfSHU;
-		//Digital
-		uint8_t RfSDChvd;
-		uint8_t RfSDCtsms;
-		uint8_t RfSDClsdb;
-		uint8_t RfSDCrsdb;
-		uint8_t RfSTAbrkledR;
-		uint8_t RfSTAbrkledG;
-		uint8_t RfSTAbrkledB;
-		//Front ECU
-		uint8_t FfANLbrake;
-		//Inverter
-		uint16_t IfRPM;
-		uint16_t IfI;
-		uint16_t IfPar;
-		uint16_t IfV;
-		uint16_t IfT_IGBT;
-		uint16_t IfT_Mot;
-		uint32_t IfErr;
+typedef struct{
+	/* ================ MISSATGE 1 ================ */
+	uint32_t  FfANLRpot  ;
+	uint32_t  FfANLLpot  ;
+	uint16_t FfANLRsus  ;
+	uint16_t FfANLLsus  ;
+	uint8_t  FfDIGRvel  ;
+	uint8_t  FfDIGLvel  ;
+	uint8_t  FfANLbrake ;
+
+	/* ================ MISSATGE 2 ================ */
+	uint8_t  FfINTsbms      ;
+	uint8_t  FfINTr2d       ;
+	uint8_t  FfINTmenu      ;
+	uint8_t  FfDIGmicrosd   ;
+	uint8_t  FfSDCinertia   ;
+	uint8_t  FfSDCbots      ;
+	uint8_t  FfSDCcsdb      ;
+	uint8_t  FfERRapps      ;
+	uint8_t  FfDIGrefrion   ;
+	uint8_t  FfDIGrefriauto ;
+	uint8_t  FfDIGr2d       ;
+	uint16_t FfSHU          ;
+	uint8_t  FfSUPled       ;
 } DICCF_t;
 
-extern DICCF_t DICCF;
-
 typedef struct {
-	//Analog
-	uint16_t RpSIGlvs;
-	uint16_t RpSHU;
-	//Digital
-	uint8_t RpSDChvd;
-	uint8_t RpSDCtsms;
-	uint8_t RpSDClsdb;
-	uint8_t RpSDCrsdb;
-	uint8_t RpSTAbrkledR;
-	uint8_t RpSTAbrkledG;
-	uint8_t RpSTAbrkledB;
-	//Front ECU
-	uint8_t FpANLbrake;
-	//Inverter
-	uint8_t IpRPM;
-	uint8_t IpI;
-	uint8_t IpPar;
-	uint8_t IpV;
-	uint8_t IpT_IGBT;
-	uint8_t IpT_Mot;
-	uint8_t IpErrL1;
-	uint8_t IpErrH1;
-	uint8_t IpErrL2;
-	uint8_t IpErrH2;
-} DICCP_t;
+	/* ================ MISSATGE 1 ================ */
+	uint8_t  FpANLRpot  ;
+	uint8_t  FpANLLpot  ;
+	uint16_t FpANLRsus  ;
+	uint16_t FpANLLsus  ;
+	uint8_t  FpDIGRvel  ;
+	uint8_t  FpDIGLvel  ;
+	uint8_t  FpANLbrake ;
 
-extern DICCP_t DICCP;
+	/* ================ MISSATGE 2 ================ */
+	uint8_t  FpDIGvel      ;
+	uint8_t  FpANLtaccu    ;
+	uint8_t  FpANLvaccu    ;
+	uint8_t  FpINTsbms     ;
+	uint8_t  FpINTr2d      ;
+	uint8_t  FpINTmenu     ;
+	uint8_t  FpDIGmicrosd  ;
+	uint8_t  FpSDCinertia  ;
+	uint8_t  FpSDCbots     ;
+	uint8_t  FpSDCcsdb     ;
+	uint8_t  FpERRapps     ;
+	uint8_t  FpDIGrefri    ;
+	uint8_t  FpDIGrefrion  ;
+	uint8_t  FpDIGrefriauto;
+	uint8_t  FpDIGr2d      ;
+	uint8_t  FpINTtsoff	   ;
+	uint16_t FpSHU         ;
+
+	/* ================ HVDB ================ */
+	uint8_t  DpSDC		   ;
+	uint8_t  SpERRbms	   ;
+	uint8_t  SpERRbimd	   ;
+} DICCP_t;
 
 /* USER CODE END Private defines */
 

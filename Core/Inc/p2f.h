@@ -10,7 +10,6 @@
 
 #include "main.h"
 
-void INVERTER(DICCP_t *DICCP);
-void PLC(DICCP_t *DICCP);
+void R2D(DICCF_t *DICCF, DICCP_t *DICCP);
 
 #endif /* INC_P2F_H_ */
