@@ -48,7 +48,11 @@ DMA_HandleTypeDef hdma_adc1;
 FDCAN_HandleTypeDef hfdcan1;
 
 /* USER CODE BEGIN PV */
-uint32_t DICCDMA[1];
+#define DMA_CH1 3
+uint32_t DICCDMA[DMA_CH1];
+
+volatile DICCF_t DICCF = {0};
+volatile DICCP_t DICCP = {0};
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -99,8 +103,6 @@ int main(void)
   MX_FDCAN1_Init();
   MX_ADC1_Init();
   /* USER CODE BEGIN 2 */
-  DICCF_t DICCF = {0};
-  DICCP_t DICCP = {0};
   CAN_Init_Custom(&hfdcan1);
 
   HAL_ADC_Start_DMA(&hadc1, (uint32_t *)DICCDMA, 1);
@@ -133,6 +135,7 @@ int main(void)
 	  CAN_Msg_Maker(&DICCP, Msg1, Msg2, Msg3);
 
 	  CAN_Send(&hfdcan1, 0x100, Msg1, 5);
+
 	  CAN_Send(&hfdcan1, 0x101, Msg2, 8);
 
 	  CAN_Send(&hfdcan1, 0x102, Msg3, 3);

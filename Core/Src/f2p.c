@@ -8,9 +8,9 @@
 #include "f2p.h"
 
 void DMA2DICCF(DICCF_t *DICCF, uint32_t *buffer) {
-		/*DICCF->FfANLRpot=buffer[0]&0xFFF;
-		DICCF->FfANLLpot=buffer[1]&0xFFF;*/
-		DICCF->FfANLbrake=buffer[0]&0xFFF;
+		DICCF->FfANLRpot=buffer[0]&0xFFF;
+		DICCF->FfANLLpot=buffer[1]&0xFFF;
+		DICCF->FfANLbrake=buffer[2]&0xFFF;
 }
 
 void DIG2DICCF(DICCF_t *DICCF){
