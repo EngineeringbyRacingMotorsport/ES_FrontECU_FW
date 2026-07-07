@@ -27,7 +27,7 @@ void CAN_Init_Custom(FDCAN_HandleTypeDef *hfdcan) {
     if (HAL_FDCAN_Start(hfdcan) != HAL_OK) Error_Handler();
 }
 
-void CAN_Msg_Maker(DICCP_t *DICCP, uint8_t *Msg1, uint8_t *Msg2)
+void CAN_Msg_Maker(DICCP_t *DICCP, uint8_t *Msg1, uint8_t *Msg2, uint8_t *Msg3)
 {
 	/*------------MISSATGE 1-----------*/
 	Msg1[0] |= (DICCP->FpANLRpot  & 0xFF);
@@ -56,6 +56,10 @@ void CAN_Msg_Maker(DICCP_t *DICCP, uint8_t *Msg1, uint8_t *Msg2)
 
 	Msg2[3] |= ((DICCP->FpSHU      & 0x00FF) << 0);
 	Msg2[4] |= ((DICCP->FpSHU      & 0xFF00) >> 8);
+
+	Msg3[0] = 0x90;
+	Msg3[1] = ((DICCP->FpANLRpot      & 0x00FF) << 0);
+	Msg3[2] = ((DICCP->FpANLRpot      & 0xFF00) >> 8);
 }
 
 HAL_StatusTypeDef CAN_Send(FDCAN_HandleTypeDef *hfdcan, uint32_t id, uint8_t *data, uint32_t len) {
@@ -104,7 +108,6 @@ void Inverter_Request_Data(FDCAN_HandleTypeDef *hfdcan, uint8_t regID, uint8_t i
     }
 }
 
-extern DICCF_t DICCF;
 extern DICCP_t DICCP;
 
 void HAL_FDCAN_RxFifo0Callback(FDCAN_HandleTypeDef *hfdcan, uint32_t RxFifo0ITs)

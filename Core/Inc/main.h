@@ -59,10 +59,6 @@ void Error_Handler(void);
 /* Private defines -----------------------------------------------------------*/
 #define FfINTbuzz_Pin GPIO_PIN_13
 #define FfINTbuzz_GPIO_Port GPIOC
-#define FfANLRpot_Pin GPIO_PIN_0
-#define FfANLRpot_GPIO_Port GPIOA
-#define FfANLLpot_Pin GPIO_PIN_1
-#define FfANLLpot_GPIO_Port GPIOA
 #define FfDIGr2d_Pin GPIO_PIN_4
 #define FfDIGr2d_GPIO_Port GPIOA
 #define FfANLbrake_Pin GPIO_PIN_0
@@ -76,13 +72,13 @@ void Error_Handler(void);
 
 typedef struct{
 	/* ================ MISSATGE 1 ================ */
-	uint32_t  FfANLRpot  ;
-	uint32_t  FfANLLpot  ;
+	uint16_t  FfANLRpot  ;
+	uint16_t  FfANLLpot  ;
 	uint16_t FfANLRsus  ;
 	uint16_t FfANLLsus  ;
 	uint8_t  FfDIGRvel  ;
 	uint8_t  FfDIGLvel  ;
-	uint8_t  FfANLbrake ;
+	uint16_t  FfANLbrake ;
 
 	/* ================ MISSATGE 2 ================ */
 	uint8_t  FfINTsbms      ;
@@ -102,13 +98,13 @@ typedef struct{
 
 typedef struct {
 	/* ================ MISSATGE 1 ================ */
-	uint8_t  FpANLRpot  ;
-	uint8_t  FpANLLpot  ;
+	uint16_t  FpANLRpot  ;
+	uint16_t  FpANLLpot  ;
 	uint16_t FpANLRsus  ;
 	uint16_t FpANLLsus  ;
 	uint8_t  FpDIGRvel  ;
 	uint8_t  FpDIGLvel  ;
-	uint8_t  FpANLbrake ;
+	uint16_t  FpANLbrake ;
 
 	/* ================ MISSATGE 2 ================ */
 	uint8_t  FpDIGvel      ;

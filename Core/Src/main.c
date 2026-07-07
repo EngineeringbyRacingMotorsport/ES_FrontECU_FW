@@ -48,7 +48,7 @@ DMA_HandleTypeDef hdma_adc1;
 FDCAN_HandleTypeDef hfdcan1;
 
 /* USER CODE BEGIN PV */
-uint32_t DICCDMA[3];
+uint32_t DICCDMA[1];
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -103,7 +103,9 @@ int main(void)
   DICCP_t DICCP = {0};
   CAN_Init_Custom(&hfdcan1);
 
+  HAL_ADC_Start_DMA(&hadc1, (uint32_t *)DICCDMA, 1);
 
+  HAL_ADCEx_Calibration_Start(&hadc1, ADC_SINGLE_ENDED);
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -115,10 +117,12 @@ int main(void)
     /* USER CODE BEGIN 3 */
 	  HAL_GPIO_WritePin(GPIOB, FfSUPled_Pin, GPIO_PIN_SET);
 
-	  HAL_ADC_Start_DMA(&hadc1, DICCDMA, 3);
+	  HAL_GPIO_WritePin(GPIOB, FfINTbuzz_Pin, GPIO_PIN_RESET);
 
 	  uint8_t Msg1[5] = {0};
 	  uint8_t Msg2[5] = {0};
+	  uint8_t Msg3[4] = {0};
+
 
 	  DIG2DICCF(&DICCF);
 
@@ -126,12 +130,16 @@ int main(void)
 
 	  DICCF2DICCP(&DICCF, &DICCP);
 
-	  CAN_Msg_Maker(&DICCP, Msg1, Msg2);
+	  CAN_Msg_Maker(&DICCP, Msg1, Msg2, Msg3);
 
-	  CAN_Send(&hfdcan1, 0x101, Msg1, 5);
-	  CAN_Send(&hfdcan1, 0x102, Msg2, 8);
+	  CAN_Send(&hfdcan1, 0x100, Msg1, 5);
+	  CAN_Send(&hfdcan1, 0x101, Msg2, 8);
+
+	  CAN_Send(&hfdcan1, 0x102, Msg3, 3);
 
 	  R2D(&DICCF, &DICCP);
+
+	  HAL_Delay(100);
 
   }
   /* USER CODE END 3 */
@@ -209,16 +217,16 @@ static void MX_ADC1_Init(void)
   hadc1.Init.Resolution = ADC_RESOLUTION_12B;
   hadc1.Init.DataAlign = ADC_DATAALIGN_RIGHT;
   hadc1.Init.GainCompensation = 0;
-  hadc1.Init.ScanConvMode = ADC_SCAN_ENABLE;
+  hadc1.Init.ScanConvMode = ADC_SCAN_DISABLE;
   hadc1.Init.EOCSelection = ADC_EOC_SINGLE_CONV;
   hadc1.Init.LowPowerAutoWait = DISABLE;
   hadc1.Init.ContinuousConvMode = ENABLE;
-  hadc1.Init.NbrOfConversion = 3;
+  hadc1.Init.NbrOfConversion = 1;
   hadc1.Init.DiscontinuousConvMode = DISABLE;
   hadc1.Init.ExternalTrigConv = ADC_SOFTWARE_START;
   hadc1.Init.ExternalTrigConvEdge = ADC_EXTERNALTRIGCONVEDGE_NONE;
-  hadc1.Init.DMAContinuousRequests = DISABLE;
-  hadc1.Init.Overrun = ADC_OVR_DATA_PRESERVED;
+  hadc1.Init.DMAContinuousRequests = ENABLE;
+  hadc1.Init.Overrun = ADC_OVR_DATA_OVERWRITTEN;
   hadc1.Init.OversamplingMode = DISABLE;
   if (HAL_ADC_Init(&hadc1) != HAL_OK)
   {
@@ -235,30 +243,12 @@ static void MX_ADC1_Init(void)
 
   /** Configure Regular Channel
   */
-  sConfig.Channel = ADC_CHANNEL_1;
+  sConfig.Channel = ADC_CHANNEL_15;
   sConfig.Rank = ADC_REGULAR_RANK_1;
   sConfig.SamplingTime = ADC_SAMPLETIME_247CYCLES_5;
   sConfig.SingleDiff = ADC_SINGLE_ENDED;
   sConfig.OffsetNumber = ADC_OFFSET_NONE;
   sConfig.Offset = 0;
-  if (HAL_ADC_ConfigChannel(&hadc1, &sConfig) != HAL_OK)
-  {
-    Error_Handler();
-  }
-
-  /** Configure Regular Channel
-  */
-  sConfig.Channel = ADC_CHANNEL_2;
-  sConfig.Rank = ADC_REGULAR_RANK_2;
-  if (HAL_ADC_ConfigChannel(&hadc1, &sConfig) != HAL_OK)
-  {
-    Error_Handler();
-  }
-
-  /** Configure Regular Channel
-  */
-  sConfig.Channel = ADC_CHANNEL_15;
-  sConfig.Rank = ADC_REGULAR_RANK_3;
   if (HAL_ADC_ConfigChannel(&hadc1, &sConfig) != HAL_OK)
   {
     Error_Handler();
