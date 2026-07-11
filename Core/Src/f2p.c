@@ -7,17 +7,17 @@
 
 #include "f2p.h"
 
-void DMA2DICCF(DICCF_t *DICCF, uint32_t *buffer) {
-		DICCF->FfANLRpot=buffer[0]&0xFFF;
+void DMA2DICCF(volatile DICCF_t *DICCF, volatile uint32_t *buffer) {
+		DICCF->FfANLRpot=buffer[2]&0xFFF;
 		DICCF->FfANLLpot=buffer[1]&0xFFF;
-		DICCF->FfANLbrake=buffer[2]&0xFFF;
+		DICCF->FfANLbrake=buffer[0]&0xFFF;
 }
 
-void DIG2DICCF(DICCF_t *DICCF){
+void DIG2DICCF(volatile DICCF_t *DICCF){
 	DICCF->FfINTr2d = HAL_GPIO_ReadPin(GPIOB, FfINTr2d_Pin);
 }
 
-void DICCF2DICCP(DICCF_t *DICCF, DICCP_t *DICCP) {
+void DICCF2DICCP(volatile DICCF_t *DICCF, volatile DICCP_t *DICCP) {
 	DICCP->FpINTr2d=!DICCF->FfINTr2d;
 
 	DICCP->FpANLRpot=(DICCF->FfANLRpot)*8;

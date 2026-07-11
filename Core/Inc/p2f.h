@@ -10,6 +10,6 @@
 
 #include "main.h"
 
-void R2D(DICCF_t *DICCF, DICCP_t *DICCP);
+void R2D(volatile DICCF_t *DICCF, volatile DICCP_t *DICCP);
 
 #endif /* INC_P2F_H_ */

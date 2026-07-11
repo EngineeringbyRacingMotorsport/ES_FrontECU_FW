@@ -59,6 +59,10 @@ void Error_Handler(void);
 /* Private defines -----------------------------------------------------------*/
 #define FfINTbuzz_Pin GPIO_PIN_13
 #define FfINTbuzz_GPIO_Port GPIOC
+#define FfANLRpot_Pin GPIO_PIN_0
+#define FfANLRpot_GPIO_Port GPIOA
+#define FfANLLpot_Pin GPIO_PIN_1
+#define FfANLLpot_GPIO_Port GPIOA
 #define FfDIGr2d_Pin GPIO_PIN_4
 #define FfDIGr2d_GPIO_Port GPIOA
 #define FfANLbrake_Pin GPIO_PIN_0
@@ -129,6 +133,7 @@ typedef struct {
 	uint8_t  DpSDC		   ;
 	uint8_t  SpERRbms	   ;
 	uint8_t  SpERRbimd	   ;
+	uint8_t  ApTHRhv       ;
 } DICCP_t;
 
 /* USER CODE END Private defines */

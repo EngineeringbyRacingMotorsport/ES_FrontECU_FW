@@ -1,6 +1,9 @@
 #include "p2f.h"
 
-static uint8_t APPS(DICCF_t *DICCF, DICCP_t *DICCP){
+static uint8_t  switch_state_r = 0;                     // Estat en el que es troba el r2d
+static uint32_t temp_R2D = 0;
+
+static uint8_t APPS(volatile DICCF_t *DICCF, volatile DICCP_t *DICCP){
 	/*------------VARIABLES APPS-----------*/
 	int32_t 	RPotX = DICCF -> FfANLRpot;																		// Valor que llegeix el ADC del potenciometre dret de l'accelerador
 	int32_t 	LPotX = DICCF -> FfANLLpot;																		// Valor que llegeix el ADC del potenciometre esquerre de l'accelerador
@@ -63,46 +66,45 @@ static uint8_t APPS(DICCF_t *DICCF, DICCP_t *DICCP){
 	}
 }
 
-void R2D(DICCF_t *DICCF, DICCP_t *DICCP){
+void R2D(volatile DICCF_t *DICCF, volatile DICCP_t *DICCP){
 /*------------VARIABLES R2D-----------*/
-uint8_t 	switch_state_r = 0;						// Estat en el que es troba el r2d
-uint32_t 	temp_R2D = 0;							// Temps (en ms) en què entrem a STEP2
+						// Temps (en ms) en què entrem a STEP2
 
 	switch (switch_state_r)							// Màquina d'estats finits per la seqüència Ready To Drive
 	{
 		// Condicions per passar d'inicial a STEP1: fre premut (DICCF->FfANLbrake >= 300), SDC actiu (SDC != 0), botó R2D premut (DICCP->FpINTr2d != 0),
 		//Air positiu OK (DICCP->FpINTtsoff != 0) i sense error d'APPS (!error_apps)
 		case 0:
-			if (DICCF->FfANLbrake >= 300 && DICCP-> DpSDC == 1 && DICCP->FpINTr2d == 1 && DICCP->FpINTtsoff == 1 && APPS(DICCF, DICCP)){
+			if (DICCF->FfANLbrake >= 5 && DICCP-> DpSDC == 1 && DICCP->FpINTr2d == 1 && DICCP->ApTHRhv == 1 /*&& APPS(DICCF, DICCP)*/){
 				switch_state_r = 1;
 			}
 			break;
 
 		// En STEP1 exigim: Fre continua premut, SDC actiu, botó alliberat (!DICCP->FpINTr2d), air positiu OK i sense error APPS
 		case 1:
-			if (DICCF->FfANLbrake >= 300 && DICCP-> DpSDC == 1 && DICCP->FpINTr2d != 1 && DICCP->FpINTtsoff == 1 && APPS(DICCF, DICCP))
+			if (DICCF->FfANLbrake >= 5 && DICCP-> DpSDC == 1 && DICCP->FpINTr2d != 1 && DICCP->ApTHRhv == 1 /*&& APPS(DICCF, DICCP)*/)
 			{
 				temp_R2D = HAL_GetTick();																															// HAL_GetTick() dona el nombre de mil·lisegons des de HAL_Init() (és un contador global de temps del sistema incrementat per l'interrupt de SysTick).
 				switch_state_r = 2;																																	// Passem a STEP2 (finestra d'espera de 2 segons)
 			}
-			else if (DICCP-> DpSDC == 0 || DICCP->FpINTtsoff == 0){ 																								// Si es perd SDC, air positiu o hi ha error d'APPS, tornem a l'estat inicial
+			else if (DICCP-> DpSDC == 0 || DICCP-> ApTHRhv == 0){ 																								// Si es perd SDC, air positiu o hi ha error d'APPS, tornem a l'estat inicial
 				switch_state_r = 0;
 			}
 			break;
 
 		// En STEP2: SDC actiu, botó segueix alliberat, air positiu OK, sense error APPS i han passat com a mínim 2000 ms (2 s) des de temp_R2D
 		case 2:
-			if (DICCF->FfANLbrake >= 300 && DICCP-> DpSDC == 1 && DICCP->FpINTtsoff == 1 && (HAL_GetTick() - temp_R2D) >= 2000 && APPS(DICCF, DICCP)){			// Aquí, determinem el temps que s'ha avançat respecte el punt inicial
+			if (DICCF->FfANLbrake >= 300 && DICCP-> DpSDC == 1 && DICCP->ApTHRhv == 1 && (HAL_GetTick() - temp_R2D) >= 2000 /*&& APPS(DICCF, DICCP)*/){			// Aquí, determinem el temps que s'ha avançat respecte el punt inicial
 				switch_state_r = 3;																																	// Si es compleix tot això, passem a STEP3
 			}
-			else if (DICCP-> DpSDC == 0 || DICCP->FpINTtsoff == 0 || DICCF->FfANLbrake <= 300)	{																	// Qualsevol pèrdua de SDC, air positiu o error APPS ens fa tornar a inicial
+			else if (DICCP-> DpSDC == 0 || DICCP->ApTHRhv == 0 || DICCF->FfANLbrake <= 300)	{																	// Qualsevol pèrdua de SDC, air positiu o error APPS ens fa tornar a inicial
 				switch_state_r = 0;
 			}
 			break;
 
 		// En Ready To Drive, vigilem contínuament que: SDC segueixi actiu, air positiu OK i sense error d'APPS
 		case 3:
-			if (DICCP-> DpSDC == 0 || DICCP->FpINTtsoff == 0 || APPS(DICCF, DICCP)){
+			if (DICCP-> DpSDC == 0 || DICCP->ApTHRhv == 0 /*|| APPS(DICCF, DICCP)*/){
 				switch_state_r = 0;
 			}
 			break;
