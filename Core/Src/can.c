@@ -79,35 +79,6 @@ HAL_StatusTypeDef CAN_Send(FDCAN_HandleTypeDef *hfdcan, uint32_t id, uint8_t *da
     return HAL_FDCAN_AddMessageToTxFifoQ(hfdcan, &txHeader, data);
 }
 
-
-void Inverter_Request_Data(FDCAN_HandleTypeDef *hfdcan, uint8_t regID, uint8_t interval_ms)
-{
-    FDCAN_TxHeaderTypeDef TxHeader;
-    uint8_t TxData[3];
-
-    // Configuración específica para el periférico FDCAN del STM32G4
-    TxHeader.Identifier = 0x201;                      // ID estándar del Bamocar (Nodo 1)
-    TxHeader.IdType = FDCAN_STANDARD_ID;              // Identificador estándar (11 bits)
-    TxHeader.TxFrameType = FDCAN_DATA_FRAME;          // Frame de datos normal
-    TxHeader.DataLength = FDCAN_DLC_BYTES_3;          // El Bamocar exige exactamente 3 bytes
-    TxHeader.ErrorStateIndicator = FDCAN_ESI_ACTIVE;
-    TxHeader.BitRateSwitch = FDCAN_BRS_OFF;           // Sin cambio de velocidad
-    TxHeader.FDFormat = FDCAN_CLASSIC_CAN;            // ¡CRÍTICO! Forzar modo CAN Clásico
-    TxHeader.TxEventFifoControl = FDCAN_NO_TX_EVENTS;
-    TxHeader.MessageMarker = 0;
-
-    // Datos del protocolo Unitek
-    TxData[0] = 0x3D;                                 // Comando de lectura
-    TxData[1] = regID;                                // Registro solicitado
-    TxData[2] = interval_ms;                          // Intervalo cíclico
-
-    // Enviar a la cola de transmisión del FDCAN
-    if (HAL_FDCAN_AddMessageToTxFifoQ(hfdcan, &TxHeader, TxData) != HAL_OK)
-    {
-        // Manejar error de bus si fuera necesario
-    }
-}
-
 extern DICCP_t DICCP;
 
 void HAL_FDCAN_RxFifo0Callback(FDCAN_HandleTypeDef *hfdcan, uint32_t RxFifo0ITs)
