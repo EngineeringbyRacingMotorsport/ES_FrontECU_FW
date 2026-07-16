@@ -30,8 +30,8 @@ void CAN_Init_Custom(FDCAN_HandleTypeDef *hfdcan) {
 void CAN_Msg_Maker(volatile DICCP_t *DICCP, uint8_t *Msg1, uint8_t *Msg2, uint8_t *Msg3)
 {
 	/*------------MISSATGE 1-----------*/
-	Msg1[0] |= (DICCP->FpANLRpot  & 0xFF);
-	Msg1[1] |= (DICCP->FpANLLpot  & 0xFF);
+	Msg1[0] |= (DICCP->FpDIGRpot  & 0xFF);
+	Msg1[1] |= (DICCP->FpDIGLpot  & 0xFF);
 	Msg1[2] |= (DICCP->FpDIGRvel  & 0xFF);
 	Msg1[3] |= (DICCP->FpDIGLvel  & 0xFF);
 	Msg1[4] |= (DICCP->FpANLbrake & 0xFF);

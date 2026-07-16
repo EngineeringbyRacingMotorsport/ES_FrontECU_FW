@@ -104,10 +104,10 @@ typedef struct {
 	/* ================ MISSATGE 1 ================ */
 	uint16_t  FpANLRpot  ;
 	uint16_t  FpANLLpot  ;
-	uint16_t FpANLRsus  ;
-	uint16_t FpANLLsus  ;
-	uint8_t  FpDIGRvel  ;
-	uint8_t  FpDIGLvel  ;
+	uint8_t   FpDIGRpot  ;
+	uint8_t   FpDIGLpot  ;
+	uint8_t   FpDIGRvel  ;
+	uint8_t   FpDIGLvel  ;
 	uint16_t  FpANLbrake ;
 
 	/* ================ MISSATGE 2 ================ */
