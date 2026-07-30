@@ -30,20 +30,18 @@ void CAN_Init_Custom(FDCAN_HandleTypeDef *hfdcan) {
 void CAN_Msg_Maker(volatile DICCP_t *DICCP, uint8_t *Msg1, uint8_t *Msg2, uint8_t *Msg3)
 {
 	/*------------MISSATGE 1-----------*/
-	Msg1[0] |= (DICCP->FpANLRpot  & 0xFF);
-	Msg1[1] |= (DICCP->FpANLLpot  & 0xFF);
+	Msg1[0] |= (DICCP->FpDIGRpot  & 0xFF);
+	Msg1[1] |= (DICCP->FpDIGLpot  & 0xFF);
 	Msg1[2] |= (DICCP->FpDIGRvel  & 0xFF);
 	Msg1[3] |= (DICCP->FpDIGLvel  & 0xFF);
 	Msg1[4] |= (DICCP->FpANLbrake & 0xFF);
 
 	/*---------------MISSATGE 2----------------*/
-	Msg2[0] |= ((DICCP->SpERRbms     & 0x01) << 0);
-	Msg2[0] |= ((DICCP->SpERRbimd    & 0x01) << 1);
-	Msg2[0] |= ((DICCP->FpINTtsoff   & 0x01) << 2);
-	Msg2[0] |= ((DICCP->FpINTsbms    & 0x01) << 3);
-	Msg2[0] |= ((DICCP->FpINTr2d     & 0x01) << 4);
-	Msg2[0] |= ((DICCP->FpINTmenu    & 0x01) << 5);
-	Msg2[0] |= ((DICCP->FpDIGmicrosd & 0x01) << 6);
+	Msg2[0] |= ((DICCP->FpINTtsoff   & 0x01) << 0);
+	Msg2[0] |= ((DICCP->FpINTsbms    & 0x01) << 1);
+	Msg2[0] |= ((DICCP->FpINTr2d     & 0x01) << 2);
+	Msg2[0] |= ((DICCP->FpINTmenu    & 0x01) << 3);
+	Msg2[0] |= ((DICCP->FpDIGmicrosd & 0x01) << 4);
 
 	Msg2[1] |= ((DICCP->FpSDCinertia & 0x01) << 0);
 	Msg2[1] |= ((DICCP->FpSDCbots    & 0x01) << 1);
@@ -77,35 +75,6 @@ HAL_StatusTypeDef CAN_Send(FDCAN_HandleTypeDef *hfdcan, uint32_t id, uint8_t *da
     //HAL_GPIO_WritePin(GPIOB, SfSUPled_Pin, GPIO_PIN_SET);
 
     return HAL_FDCAN_AddMessageToTxFifoQ(hfdcan, &txHeader, data);
-}
-
-
-void Inverter_Request_Data(FDCAN_HandleTypeDef *hfdcan, uint8_t regID, uint8_t interval_ms)
-{
-    FDCAN_TxHeaderTypeDef TxHeader;
-    uint8_t TxData[3];
-
-    // Configuración específica para el periférico FDCAN del STM32G4
-    TxHeader.Identifier = 0x201;                      // ID estándar del Bamocar (Nodo 1)
-    TxHeader.IdType = FDCAN_STANDARD_ID;              // Identificador estándar (11 bits)
-    TxHeader.TxFrameType = FDCAN_DATA_FRAME;          // Frame de datos normal
-    TxHeader.DataLength = FDCAN_DLC_BYTES_3;          // El Bamocar exige exactamente 3 bytes
-    TxHeader.ErrorStateIndicator = FDCAN_ESI_ACTIVE;
-    TxHeader.BitRateSwitch = FDCAN_BRS_OFF;           // Sin cambio de velocidad
-    TxHeader.FDFormat = FDCAN_CLASSIC_CAN;            // ¡CRÍTICO! Forzar modo CAN Clásico
-    TxHeader.TxEventFifoControl = FDCAN_NO_TX_EVENTS;
-    TxHeader.MessageMarker = 0;
-
-    // Datos del protocolo Unitek
-    TxData[0] = 0x3D;                                 // Comando de lectura
-    TxData[1] = regID;                                // Registro solicitado
-    TxData[2] = interval_ms;                          // Intervalo cíclico
-
-    // Enviar a la cola de transmisión del FDCAN
-    if (HAL_FDCAN_AddMessageToTxFifoQ(hfdcan, &TxHeader, TxData) != HAL_OK)
-    {
-        // Manejar error de bus si fuera necesario
-    }
 }
 
 extern DICCP_t DICCP;
