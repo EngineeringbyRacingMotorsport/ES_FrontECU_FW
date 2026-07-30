@@ -49,6 +49,7 @@ void CAN_Msg_Maker(volatile DICCP_t *DICCP, uint8_t *Msg1, uint8_t *Msg2, uint8_
 	Msg2[1] |= ((DICCP->FpERRapps    & 0x01) << 3);
 	Msg2[1] |= ((DICCP->FpDIGrefri   & 0x01) << 4);
 	Msg2[1] |= ((DICCP->FpDIGr2d     & 0x01) << 5);
+	Msg2[1] |= ((DICCP->FpINTrefrion & 0x01) << 6);
 
 	Msg2[2] |= ((DICCP->FpDIGvel     & 0xFF) << 0);
 

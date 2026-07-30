@@ -15,6 +15,7 @@ void DMA2DICCF(volatile DICCF_t *DICCF, volatile uint32_t *buffer) {
 
 void DIG2DICCF(volatile DICCF_t *DICCF){
 	DICCF->FfINTr2d = HAL_GPIO_ReadPin(GPIOB, FfINTr2d_Pin);
+	DICCF->FfINTrefrion = HAL_GPIO_ReadPin(GPIOB, FfINTrefrion_Pin);
 }
 
 void DICCF2DICCP(volatile DICCF_t *DICCF, volatile DICCP_t *DICCP) {
@@ -38,5 +39,7 @@ void DICCF2DICCP(volatile DICCF_t *DICCF, volatile DICCP_t *DICCP) {
 	                   ((2600 - DICCF->FfANLLpot) * 51) / 330;
 
 	DICCP->FpANLbrake = (DICCF->FfANLbrake >> 4);
+
+	DICCP->FpINTrefrion = DICCF->FfINTrefrion;
 
 }

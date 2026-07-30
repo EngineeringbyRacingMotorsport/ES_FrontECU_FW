@@ -71,6 +71,8 @@ void Error_Handler(void);
 #define FfSUPled_GPIO_Port GPIOB
 #define FfINTr2d_Pin GPIO_PIN_9
 #define FfINTr2d_GPIO_Port GPIOB
+#define FfINTrefrion_Pin GPIO_PIN_15
+#define FfINTrefrion_GPIO_Port GPIOA
 
 /* USER CODE BEGIN Private defines */
 
@@ -98,6 +100,7 @@ typedef struct{
 	uint8_t  FfDIGr2d       ;
 	uint16_t FfSHU          ;
 	uint8_t  FfSUPled       ;
+	uint8_t  FfINTrefrion   ;
 } DICCF_t;
 
 typedef struct {
@@ -128,6 +131,7 @@ typedef struct {
 	uint8_t  FpDIGr2d      ;
 	uint8_t  FpINTtsoff	   ;
 	uint16_t FpSHU         ;
+	uint8_t  FpINTrefrion  ;
 
 	/* ================ HVDB ================ */
 	uint8_t  DpSDC		   ;
