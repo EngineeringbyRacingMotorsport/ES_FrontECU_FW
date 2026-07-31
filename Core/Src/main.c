@@ -142,6 +142,8 @@ int main(void)
 
 	  R2D(&DICCF, &DICCP);
 
+	  PLC(&DICCP);
+
 	  HAL_Delay(100);
 
   }
