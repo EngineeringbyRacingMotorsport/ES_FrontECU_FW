@@ -4,4 +4,4 @@
 ../Core/Src/main.c:288:13:MX_FDCAN1_Init	2
 ../Core/Src/main.c:329:13:MX_DMA_Init	1
 ../Core/Src/main.c:348:13:MX_GPIO_Init	1
-../Core/Src/main.c:410:6:Error_Handler	1
+../Core/Src/main.c:416:6:Error_Handler	1

@@ -3,6 +3,14 @@
 static uint8_t  switch_state_r = 0;                     // Estat en el que es troba el r2d
 static uint32_t temp_R2D = 0;
 
+void PLC(volatile DICCP_t *DICCP)
+{
+	if(DICCP->SpSDCbms == 1)
+	{ HAL_GPIO_WritePin(GPIOB, FfINTebms_Pin, GPIO_PIN_SET); }
+	else
+	{ HAL_GPIO_WritePin(GPIOB, FfINTebms_Pin, GPIO_PIN_RESET); }
+}
+
 static uint8_t APPS(volatile DICCF_t *DICCF, volatile DICCP_t *DICCP){
 	/*------------VARIABLES APPS-----------*/
 	int32_t 	RPotX = DICCF -> FfANLRpot;																		// Valor que llegeix el ADC del potenciometre dret de l'accelerador

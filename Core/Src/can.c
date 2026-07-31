@@ -4,8 +4,9 @@
  *  Created on: Jun 25, 2026
  *      Author: oriol
  */
-
 #include <can.h>
+
+uint32_t sdctimer = 0;
 
 void CAN_Init_Custom(FDCAN_HandleTypeDef *hfdcan) {
     FDCAN_FilterTypeDef sFilterConfig;
@@ -96,6 +97,19 @@ void HAL_FDCAN_RxFifo0Callback(FDCAN_HandleTypeDef *hfdcan, uint32_t RxFifo0ITs)
             if(RxHeader.Identifier == 0x300)
             {
             	DICCP.ApTHRhv = (RxData[0] & 0x01);
+            }
+            if(RxHeader.Identifier == 0x600)
+            {
+            	if((HAL_GetTick() - sdctimer) <= 300)
+            	{
+            		DICCP.SpSDCbms = (RxData[0] & 0x01)>>5;
+            		sdctimer = HAL_GetTick();
+            	}
+            		else{
+            			DICCP.SpSDCbms = 0;
+            			sdctimer = HAL_GetTick();
+            		};
+            	}
             }
         }
     }

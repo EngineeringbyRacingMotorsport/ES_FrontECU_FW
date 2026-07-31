@@ -69,10 +69,12 @@ void Error_Handler(void);
 #define FfANLbrake_GPIO_Port GPIOB
 #define FfSUPled_Pin GPIO_PIN_11
 #define FfSUPled_GPIO_Port GPIOB
-#define FfINTr2d_Pin GPIO_PIN_9
-#define FfINTr2d_GPIO_Port GPIOB
+#define FfINTebms_Pin GPIO_PIN_15
+#define FfINTebms_GPIO_Port GPIOB
 #define FfINTrefrion_Pin GPIO_PIN_15
 #define FfINTrefrion_GPIO_Port GPIOA
+#define FfINTr2d_Pin GPIO_PIN_9
+#define FfINTr2d_GPIO_Port GPIOB
 
 /* USER CODE BEGIN Private defines */
 
@@ -135,8 +137,7 @@ typedef struct {
 
 	/* ================ HVDB ================ */
 	uint8_t  DpSDC		   ;
-	uint8_t  SpERRbms	   ;
-	uint8_t  SpERRbimd	   ;
+	uint8_t  SpSDCbms	   ;
 	uint8_t  ApTHRhv       ;
 } DICCP_t;
 
