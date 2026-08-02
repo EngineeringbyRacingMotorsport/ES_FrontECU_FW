@@ -15,13 +15,13 @@ static uint8_t APPS(volatile DICCF_t *DICCF, volatile DICCP_t *DICCP){
 	/*------------VARIABLES APPS-----------*/
 	int32_t 	RPotX = DICCF -> FfANLRpot;																		// Valor que llegeix el ADC del potenciometre dret de l'accelerador
 	int32_t 	LPotX = DICCF -> FfANLLpot;																		// Valor que llegeix el ADC del potenciometre esquerre de l'accelerador
-	uint8_t 	Rpotmin = 0;
-	uint8_t 	Rpotmax = 0;
-	uint8_t 	Lpotmin = 0;
-	uint8_t 	Lpotmax = 0;
+	uint8_t 	Rpotmin = 192;
+	uint8_t 	Rpotmax = 3754;
+	uint8_t 	Lpotmin = 342;
+	uint8_t 	Lpotmax = 3904;
 	static uint8_t 	switch_state_a = 0;																			// Estat en el que es troba el apps
-	uint8_t		Perc_Pright = (RPotX - Rpotmin)/((Rpotmax - Rpotmin)/100);  									// Quantitat de bits que canvia el senyal del potenciometre dret per cada % que trepitjes el pedal dret.
-	uint8_t		Perc_Pleft = (LPotX - Lpotmin)/((Lpotmax - Lpotmin)/100);   									// Quantitat de bits que canvia el senyal del potenciometre esquerra per cada % que trepitjes el pedal esquerra.
+	uint8_t		Perc_Pright = (RPotX/4095)*100;  									// Quantitat de bits que canvia el senyal del potenciometre dret per cada % que trepitjes el pedal dret.
+	uint8_t		Perc_Pleft = (LPotX/4095)*100;   									// Quantitat de bits que canvia el senyal del potenciometre esquerra per cada % que trepitjes el pedal esquerra.
 	uint32_t 	APPS_temp=0;																					// Temps (en ms) en què entrem a STEP1
 	int32_t diffperc = (int32_t)Perc_Pright - (int32_t)Perc_Pleft;
 
