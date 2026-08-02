@@ -15,13 +15,13 @@ static uint8_t APPS(volatile DICCF_t *DICCF, volatile DICCP_t *DICCP){
 	/*------------VARIABLES APPS-----------*/
 	int32_t 	RPotX = DICCF -> FfANLRpot;																		// Valor que llegeix el ADC del potenciometre dret de l'accelerador
 	int32_t 	LPotX = DICCF -> FfANLLpot;																		// Valor que llegeix el ADC del potenciometre esquerre de l'accelerador
-	uint8_t 	Rpotmin = 192;
-	uint8_t 	Rpotmax = 3754;
-	uint8_t 	Lpotmin = 342;
-	uint8_t 	Lpotmax = 3904;
+	uint16_t 	Rpotmin = 123;
+	uint16_t 	Rpotmax = 3536;
+	uint16_t 	Lpotmin = 560;
+	uint16_t 	Lpotmax = 3973;
 	static uint8_t 	switch_state_a = 0;																			// Estat en el que es troba el apps
-	uint8_t		Perc_Pright = (RPotX/4095)*100;  									// Quantitat de bits que canvia el senyal del potenciometre dret per cada % que trepitjes el pedal dret.
-	uint8_t		Perc_Pleft = (LPotX/4095)*100;   									// Quantitat de bits que canvia el senyal del potenciometre esquerra per cada % que trepitjes el pedal esquerra.
+    uint16_t     Perc_Pright = (RPotX - Rpotmin)/((Rpotmax - Rpotmin)/100);                                      // Quantitat de bits que canvia el senyal del potenciometre dret per cada % que trepitjes el pedal dret.
+    uint16_t     Perc_Pleft = (LPotX - Lpotmin)/((Lpotmax - Lpotmin)/100);                                       // Quantitat de bits que canvia el senyal del potenciometre esquerra per cada % que trepitjes el pedal esquerra.  									// Quantitat de bits que canvia el senyal del potenciometre esquerra per cada % que trepitjes el pedal esquerra.
 	uint32_t 	APPS_temp=0;																					// Temps (en ms) en què entrem a STEP1
 	int32_t diffperc = (int32_t)Perc_Pright - (int32_t)Perc_Pleft;
 
@@ -37,7 +37,7 @@ static uint8_t APPS(volatile DICCF_t *DICCF, volatile DICCP_t *DICCP){
 		/* EXPLICACIÓ (int32_t): Forcem el canvi de tipus a enter amb signe.
 		 * Si RPotX (100) < LPotX (500), la resta directa donaria un valor positiu gegant (overflow).
 		 * Amb (int32_t), la resta dóna -400, i abs() pot convertir-ho correctament a 400.*/
-		if( diffperc >= 10){
+		if( diffperc > 10){
 			APPS_temp = HAL_GetTick(); 																			// Error detectat: Guardem el "timestamp" actual en mil·lisegons.
 			switch_state_a = 1;}   																				// Passem a l'estat de verificació (comprovar si l'error dura 500ms).
 		else if( RPotX <= Rpotmin || LPotX <= Lpotmin || RPotX >= Rpotmax || LPotX >= Lpotmax){					// Comprova si els sensors estan fora de rang (per sota de 10 o per sobre de 1000).
