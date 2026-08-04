@@ -132,6 +132,10 @@ int main(void)
 
 	  DICCF2DICCP(&DICCF, &DICCP);
 
+	  APPS(&DICCF, &DICCP);
+
+	  R2D(&DICCF, &DICCP);
+
 	  CAN_Msg_Maker(&DICCP, Msg1, Msg2, Msg3);
 
 	  CAN_Send(&hfdcan1, 0x100, Msg1, 5);
@@ -139,10 +143,6 @@ int main(void)
 	  CAN_Send(&hfdcan1, 0x101, Msg2, 8);
 
 	  CAN_Send(&hfdcan1, 0x102, Msg3, 3);
-
-	  APPS(&DICCF, &DICCP);
-
-	  R2D(&DICCF, &DICCP);
 
 	  PLC(&DICCP);
 
