@@ -10,6 +10,7 @@
 
 #include "main.h"
 
+uint8_t APPS(volatile DICCF_t *DICCF, volatile DICCP_t *DICCP);
 void R2D(volatile DICCF_t *DICCF, volatile DICCP_t *DICCP);
 void PLC(volatile DICCP_t *DICCP);
 

@@ -100,15 +100,7 @@ void HAL_FDCAN_RxFifo0Callback(FDCAN_HandleTypeDef *hfdcan, uint32_t RxFifo0ITs)
             }
             if(RxHeader.Identifier == 0x600)
             {
-            	if((HAL_GetTick() - sdctimer) <= 300)
-            	{
             		DICCP.SpSDCbms = (RxData[0] & 0x01)>>5;
-            		sdctimer = HAL_GetTick();
-            	}
-            		else{
-            			DICCP.SpSDCbms = 0;
-            			sdctimer = HAL_GetTick();
-            		};
             	}
             }
         }

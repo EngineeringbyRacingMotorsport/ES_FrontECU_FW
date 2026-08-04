@@ -140,6 +140,8 @@ int main(void)
 
 	  CAN_Send(&hfdcan1, 0x102, Msg3, 3);
 
+	  APPS(&DICCF, &DICCP);
+
 	  R2D(&DICCF, &DICCP);
 
 	  PLC(&DICCP);

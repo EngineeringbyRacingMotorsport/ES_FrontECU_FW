@@ -11,19 +11,19 @@ void PLC(volatile DICCP_t *DICCP)
 	{ HAL_GPIO_WritePin(GPIOB, FfINTebms_Pin, GPIO_PIN_RESET); }
 }
 
-static uint8_t APPS(volatile DICCF_t *DICCF, volatile DICCP_t *DICCP){
+uint8_t APPS(volatile DICCF_t *DICCF, volatile DICCP_t *DICCP){
 	/*------------VARIABLES APPS-----------*/
 	int32_t 	RPotX = DICCF -> FfANLRpot;																		// Valor que llegeix el ADC del potenciometre dret de l'accelerador
 	int32_t 	LPotX = DICCF -> FfANLLpot;																		// Valor que llegeix el ADC del potenciometre esquerre de l'accelerador
-	uint16_t 	Rpotmin = 123;
-	uint16_t 	Rpotmax = 3536;
-	uint16_t 	Lpotmin = 560;
-	uint16_t 	Lpotmax = 3973;
+	uint16_t 	Lpotmin = 713;
+	uint16_t 	Lpotmax = 2560;
+	uint16_t 	Rpotmin = 1280;
+	uint16_t 	Rpotmax = 3190;
 	static uint8_t 	switch_state_a = 0;																			// Estat en el que es troba el apps
     uint16_t     Perc_Pright = (RPotX - Rpotmin)/((Rpotmax - Rpotmin)/100);                                      // Quantitat de bits que canvia el senyal del potenciometre dret per cada % que trepitjes el pedal dret.
     uint16_t     Perc_Pleft = (LPotX - Lpotmin)/((Lpotmax - Lpotmin)/100);                                       // Quantitat de bits que canvia el senyal del potenciometre esquerra per cada % que trepitjes el pedal esquerra.  									// Quantitat de bits que canvia el senyal del potenciometre esquerra per cada % que trepitjes el pedal esquerra.
 	uint32_t 	APPS_temp=0;																					// Temps (en ms) en què entrem a STEP1
-	int32_t diffperc = (int32_t)Perc_Pright - (int32_t)Perc_Pleft;
+	int32_t diffperc = (int16_t)Perc_Pright - (int16_t)Perc_Pleft;
 
 	if (diffperc < 0){
 		diffperc = -diffperc;
@@ -39,39 +39,51 @@ static uint8_t APPS(volatile DICCF_t *DICCF, volatile DICCP_t *DICCP){
 		 * Amb (int32_t), la resta dóna -400, i abs() pot convertir-ho correctament a 400.*/
 		if( diffperc > 10){
 			APPS_temp = HAL_GetTick(); 																			// Error detectat: Guardem el "timestamp" actual en mil·lisegons.
-			switch_state_a = 1;}   																				// Passem a l'estat de verificació (comprovar si l'error dura 500ms).
+			switch_state_a = 1;}
+		// Passem a l'estat de verificació (comprovar si l'error dura 500ms).
 		else if( RPotX <= Rpotmin || LPotX <= Lpotmin || RPotX >= Rpotmax || LPotX >= Lpotmax){					// Comprova si els sensors estan fora de rang (per sota de 10 o per sobre de 1000).
-			switch_state_a = 2;}   																				// Error crític immediat (ex: cable tallat), anem a l'estat de falla.
+			switch_state_a = 0;}
+
+		else if( RPotX >= Rpotmin || LPotX >= Lpotmin || RPotX <= Rpotmax || LPotX <= Lpotmax){					// Comprova si els sensors estan fora de rang (per sota de 10 o per sobre de 1000).
+			switch_state_a = 2;}// Error crític immediat (ex: cable tallat), anem a l'estat de falla.
 		break;
 
 		// Estat de "confirmació" d'error de plausibilitat.
 	case 1:
 		if ((HAL_GetTick() - APPS_temp) >= 100)
 		{																										// Si la diferència ha persistit durant 500ms o més (regla T.4.2 de Formula Student).
-			switch_state_a = 2;
-		}   																									// L'error és real i persistent, bloquegem el sistema.
-		else if (( diffperc ) <= 10)
-		{																										// Si la diferència torna a valors acceptables abans dels 500ms.
 			switch_state_a = 0;
+		}   																									// L'error és real i persistent, bloquegem el sistema.
+		else if (diffperc <= 10)
+		{																										// Si la diferència torna a valors acceptables abans dels 500ms.
+			switch_state_a = 2;
 		} 																										// Ha estat un soroll transitori, tornem a l'estat normal.
 		break;
 
 		// Estat d'error crític (Shutdown).
 	case 2:
-		switch_state_a = 2; 																					// Bucle infinit en aquest estat: el cotxe no pot accelerar fins a reiniciar.
+		if( diffperc > 10){
+			APPS_temp = HAL_GetTick(); 																			// Error detectat: Guardem el "timestamp" actual en mil·lisegons.
+			switch_state_a = 1;}
+		// Passem a l'estat de verificació (comprovar si l'error dura 500ms).
+		else if( RPotX <= Rpotmin || LPotX <= Lpotmin || RPotX >= Rpotmax || LPotX >= Lpotmax){					// Comprova si els sensors estan fora de rang (per sota de 10 o per sobre de 1000).
+			switch_state_a = 0;}
+		else{
+			switch_state_a = 2;}																			// Bucle infinit en aquest estat: el cotxe no pot accelerar fins a reiniciar.
 		break;
 	}
 	// Sortides segons l'estat
-	if (switch_state_a == 0 || switch_state_a == 1)
+	if (switch_state_a == 0)
 	{
-		return 0;
 		DICCP -> FpERRapps = 0;
+		return 0;
 	}
-	else
+	else if (switch_state_a == 2)
 	{
-		return 1;
 		DICCP -> FpERRapps = 1;
+		return 1;
 	}
+	else{switch_state_a=switch_state_a;}
 }
 
 void R2D(volatile DICCF_t *DICCF, volatile DICCP_t *DICCP){
@@ -83,14 +95,14 @@ void R2D(volatile DICCF_t *DICCF, volatile DICCP_t *DICCP){
 		// Condicions per passar d'inicial a STEP1: fre premut (DICCF->FfANLbrake >= 300), SDC actiu (SDC != 0), botó R2D premut (DICCP->FpINTr2d != 0),
 		//Air positiu OK (DICCP->FpINTtsoff != 0) i sense error d'APPS (!error_apps)
 		case 0:
-			if (DICCF->FfANLbrake >= 5 && DICCP-> DpSDC == 1 && DICCP->FpINTr2d == 1 && DICCP->ApTHRhv == 1 /*&& APPS(DICCF, DICCP)*/){
+			if (DICCP->FpANLbrake >= 5 && DICCP-> DpSDC == 1 && DICCP->FpINTr2d == 1 && DICCP->ApTHRhv == 1 && DICCP -> FpERRapps == 1){
 				switch_state_r = 1;
 			}
 			break;
 
 		// En STEP1 exigim: Fre continua premut, SDC actiu, botó alliberat (!DICCP->FpINTr2d), air positiu OK i sense error APPS
 		case 1:
-			if (DICCF->FfANLbrake >= 5 && DICCP-> DpSDC == 1 && DICCP->FpINTr2d != 1 && DICCP->ApTHRhv == 1 /*&& APPS(DICCF, DICCP)*/)
+			if (DICCP->FpANLbrake >= 5 && DICCP-> DpSDC == 1 && DICCP->FpINTr2d != 1 && DICCP->ApTHRhv == 1 && DICCP -> FpERRapps == 1)
 			{
 				temp_R2D = HAL_GetTick();																															// HAL_GetTick() dona el nombre de mil·lisegons des de HAL_Init() (és un contador global de temps del sistema incrementat per l'interrupt de SysTick).
 				switch_state_r = 2;																																	// Passem a STEP2 (finestra d'espera de 2 segons)
@@ -102,17 +114,17 @@ void R2D(volatile DICCF_t *DICCF, volatile DICCP_t *DICCP){
 
 		// En STEP2: SDC actiu, botó segueix alliberat, air positiu OK, sense error APPS i han passat com a mínim 2000 ms (2 s) des de temp_R2D
 		case 2:
-			if (DICCF->FfANLbrake >= 300 && DICCP-> DpSDC == 1 && DICCP->ApTHRhv == 1 && (HAL_GetTick() - temp_R2D) >= 2000 /*&& APPS(DICCF, DICCP)*/){			// Aquí, determinem el temps que s'ha avançat respecte el punt inicial
+			if (DICCP->FpANLbrake >= 5 && DICCP-> DpSDC == 1 && DICCP->ApTHRhv == 1 && (HAL_GetTick() - temp_R2D) >= 2000 && DICCP -> FpERRapps == 1){			// Aquí, determinem el temps que s'ha avançat respecte el punt inicial
 				switch_state_r = 3;																																	// Si es compleix tot això, passem a STEP3
 			}
-			else if (DICCP-> DpSDC == 0 || DICCP->ApTHRhv == 0 || DICCF->FfANLbrake <= 300)	{																	// Qualsevol pèrdua de SDC, air positiu o error APPS ens fa tornar a inicial
+			else if (DICCP-> DpSDC == 0 || DICCP->ApTHRhv == 0 || DICCP->FpANLbrake <= 5)	{																	// Qualsevol pèrdua de SDC, air positiu o error APPS ens fa tornar a inicial
 				switch_state_r = 0;
 			}
 			break;
 
 		// En Ready To Drive, vigilem contínuament que: SDC segueixi actiu, air positiu OK i sense error d'APPS
 		case 3:
-			if (DICCP-> DpSDC == 0 || DICCP->ApTHRhv == 0 /*|| APPS(DICCF, DICCP)*/){
+			if (DICCP-> DpSDC == 0 || DICCP->ApTHRhv == 0 || DICCP -> FpERRapps == 0){
 				switch_state_r = 0;
 			}
 			break;
