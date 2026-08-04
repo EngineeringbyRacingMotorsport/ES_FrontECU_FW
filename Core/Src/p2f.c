@@ -76,6 +76,7 @@ uint8_t APPS(volatile DICCF_t *DICCF, volatile DICCP_t *DICCP){
 	if (switch_state_a == 0)
 	{
 		DICCP -> FpERRapps = 0;
+		DICCP -> FpANLRpot = 0;
 		return 0;
 	}
 	else if (switch_state_a == 2)
