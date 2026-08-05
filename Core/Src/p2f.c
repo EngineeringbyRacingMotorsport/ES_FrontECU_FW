@@ -37,12 +37,12 @@ uint8_t APPS(volatile DICCF_t *DICCF, volatile DICCP_t *DICCP){
 		/* EXPLICACIÓ (int32_t): Forcem el canvi de tipus a enter amb signe.
 		 * Si RPotX (100) < LPotX (500), la resta directa donaria un valor positiu gegant (overflow).
 		 * Amb (int32_t), la resta dóna -400, i abs() pot convertir-ho correctament a 400.*/
-		if( diffperc > 10){
+		if( RPotX <= Rpotmin || LPotX <= Lpotmin || RPotX >= Rpotmax || LPotX >= Lpotmax){					// Comprova si els sensors estan fora de rang (per sota de 10 o per sobre de 1000).
+					switch_state_a = 0;}
+		// Passem a l'estat de verificació (comprovar si l'error dura 500ms).
+		else if( diffperc > 10){
 			APPS_temp = HAL_GetTick(); 																			// Error detectat: Guardem el "timestamp" actual en mil·lisegons.
 			switch_state_a = 1;}
-		// Passem a l'estat de verificació (comprovar si l'error dura 500ms).
-		else if( RPotX <= Rpotmin || LPotX <= Lpotmin || RPotX >= Rpotmax || LPotX >= Lpotmax){					// Comprova si els sensors estan fora de rang (per sota de 10 o per sobre de 1000).
-			switch_state_a = 0;}
 
 		else if( RPotX >= Rpotmin || LPotX >= Lpotmin || RPotX <= Rpotmax || LPotX <= Lpotmax){					// Comprova si els sensors estan fora de rang (per sota de 10 o per sobre de 1000).
 			switch_state_a = 2;}// Error crític immediat (ex: cable tallat), anem a l'estat de falla.
@@ -62,12 +62,12 @@ uint8_t APPS(volatile DICCF_t *DICCF, volatile DICCP_t *DICCP){
 
 		// Estat d'error crític (Shutdown).
 	case 2:
-		if( diffperc > 10){
+		if( RPotX <= Rpotmin || LPotX <= Lpotmin || RPotX >= Rpotmax || LPotX >= Lpotmax){					// Comprova si els sensors estan fora de rang (per sota de 10 o per sobre de 1000).
+			switch_state_a = 0;}
+		// Passem a l'estat de verificació (comprovar si l'error dura 500ms).
+		else if( diffperc > 10){
 			APPS_temp = HAL_GetTick(); 																			// Error detectat: Guardem el "timestamp" actual en mil·lisegons.
 			switch_state_a = 1;}
-		// Passem a l'estat de verificació (comprovar si l'error dura 500ms).
-		else if( RPotX <= Rpotmin || LPotX <= Lpotmin || RPotX >= Rpotmax || LPotX >= Lpotmax){					// Comprova si els sensors estan fora de rang (per sota de 10 o per sobre de 1000).
-			switch_state_a = 0;}
 		else{
 			switch_state_a = 2;}																			// Bucle infinit en aquest estat: el cotxe no pot accelerar fins a reiniciar.
 		break;
