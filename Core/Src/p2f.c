@@ -15,10 +15,10 @@ uint8_t APPS(volatile DICCF_t *DICCF, volatile DICCP_t *DICCP){
 	/*------------VARIABLES APPS-----------*/
 	int32_t 	RPotX = DICCF -> FfANLRpot;																		// Valor que llegeix el ADC del potenciometre dret de l'accelerador
 	int32_t 	LPotX = DICCF -> FfANLLpot;																		// Valor que llegeix el ADC del potenciometre esquerre de l'accelerador
-	uint16_t 	Lpotmin = 713;
-	uint16_t 	Lpotmax = 2560;
-	uint16_t 	Rpotmin = 1280;
-	uint16_t 	Rpotmax = 3190;
+	uint16_t 	Lpotmin = 1052;
+	uint16_t 	Lpotmax = 2871;
+	uint16_t 	Rpotmin = 1431;
+	uint16_t 	Rpotmax = 3248;
 	static uint8_t 	switch_state_a = 0;																			// Estat en el que es troba el apps
     uint16_t     Perc_Pright = (RPotX - Rpotmin)/((Rpotmax - Rpotmin)/100);                                      // Quantitat de bits que canvia el senyal del potenciometre dret per cada % que trepitjes el pedal dret.
     uint16_t     Perc_Pleft = (LPotX - Lpotmin)/((Lpotmax - Lpotmin)/100);                                       // Quantitat de bits que canvia el senyal del potenciometre esquerra per cada % que trepitjes el pedal esquerra.  									// Quantitat de bits que canvia el senyal del potenciometre esquerra per cada % que trepitjes el pedal esquerra.
@@ -38,7 +38,8 @@ uint8_t APPS(volatile DICCF_t *DICCF, volatile DICCP_t *DICCP){
 		 * Si RPotX (100) < LPotX (500), la resta directa donaria un valor positiu gegant (overflow).
 		 * Amb (int32_t), la resta dóna -400, i abs() pot convertir-ho correctament a 400.*/
 		if( RPotX <= Rpotmin || LPotX <= Lpotmin || RPotX >= Rpotmax || LPotX >= Lpotmax){					// Comprova si els sensors estan fora de rang (per sota de 10 o per sobre de 1000).
-					switch_state_a = 0;}
+					switch_state_a = 0;
+					break;}
 		// Passem a l'estat de verificació (comprovar si l'error dura 500ms).
 		else if( diffperc > 10){
 			APPS_temp = HAL_GetTick(); 																			// Error detectat: Guardem el "timestamp" actual en mil·lisegons.
