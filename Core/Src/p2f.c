@@ -149,3 +149,51 @@ void R2D(volatile DICCF_t *DICCF, volatile DICCP_t *DICCP){
 		DICCP-> FpDIGr2d = 1;
 	}
 }
+void Display(DICCF_t *DICCF, DICCP_t *DICCP){
+	uint8_t 	BMSerror = DICCP-> FpINTebms;								// Valor de si hi ha error de BMS
+	uint8_t 	IMDerror = DICCP-> FpINTeimd;								// Valor de si hi ha error de IMD
+	uint8_t 	APPerror = DICCP-> FpERRapps;								// Valor de si hi ha error de APPS
+	// fila 0 pantalla
+	lcd_send_cmd (0x80|0x00);
+	lcd_send_string("BxxC");
+	lcd_send_cmd (0x80|(0x00+5));
+	lcd_send_string("120km/h");
+	lcd_send_cmd (0x80|(0x00+13));
+	lcd_send_string("SDC");
+	lcd_send_cmd (0x80|(0x00+17));
+	lcd_send_string("ERR");
+
+	// fila 1 pantalla
+	lcd_send_cmd (0x80|0x40);
+	lcd_send_string("IxxC");
+	lcd_send_cmd (0x80|(0x40+5));
+	lcd_send_string("100%");
+	lcd_send_cmd (0x80|(0x40+13));
+	lcd_send_string("010");
+	if (BMSerror == 1)
+	{
+		lcd_send_cmd (0x80|(0x40+17));
+		lcd_send_string("BMS");
+	}
+	if (IMDerror == 1)
+	{
+		lcd_send_cmd (0x80|(0x40+17));
+		lcd_send_string("IMD");
+	}
+	if (APPerror == 1)
+	{
+		lcd_send_cmd (0x80|(0x40+17));
+		lcd_send_string("APP");
+	}
+
+	// fila 2 pantalla
+	lcd_send_cmd (0x80|0x14);
+	lcd_send_string("MxxC");
+	lcd_send_cmd (0x80|(0x14+5));
+	lcd_send_string("348V");
+
+	// fila 3 pantalla
+	lcd_send_cmd (0x80|(0x54+5));
+	lcd_send_string("MISSATGE");
+}
+
