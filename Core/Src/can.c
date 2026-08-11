@@ -100,8 +100,89 @@ void HAL_FDCAN_RxFifo0Callback(FDCAN_HandleTypeDef *hfdcan, uint32_t RxFifo0ITs)
             }
             if(RxHeader.Identifier == 0x600)
             {
-            		DICCP.SpSDCbms = (RxData[0] & 0x01)>>5;
+            	DICCP.SpSDCbms = (RxData[0] & 0x01)>>5;
+            }
+            if(RxHeader.Identifier == 0x560)
+            {
+                // Reconstrucció del valor de 16 bits (Little-Endian / Intel Standard)
+            	uint16_t raw_voltage = ((uint16_t)RxData[0] << 8) | (uint16_t)RxData[1];
+
+                // Aplicar el factor 0.1 per obtenir els volts reals (V)
+                DICCP.BpANLbatv = raw_voltage / 10;
+            }
+            if(RxHeader.Identifier == 0x580)
+            {
+            	if ((RxData[0] & 0xFF) == 1)
+            	{
+            		DICCP.BpANLmaxt = ((RxData[1] & 0xFF) - 50);
             	}
+            }
+            if (RxHeader.Identifier == 0x540)
+            {
+                // Reconstrucció del valor de 16 bits (Little-Endian / Intel Standard)
+                uint16_t raw_current = ((uint16_t)RxData[0] << 8) | (uint16_t)RxData[1];
+
+                // Càlcul del valor temporal
+                int32_t val = (raw_current / 10) - 3200;
+
+                // Assignació del valor absolut sense cridar abs()
+                DICCP.BpANLbatc = (val < 0) ? -val : val;
+            }
+            if (RxHeader.Identifier == 0x103)
+            {
+            	if ((RxData[0] & 0xFF) == 0x4A)
+            	{
+            	    uint16_t raw = (uint16_t)RxData[1] | ((uint16_t)RxData[2] << 8);
+
+            	    // Taula de punts de referència directes del fabricant (ADC vs Temp)
+            	    static const uint16_t adc_lut[] = {
+            	        16308, 16487, 16757, 17151, 17688, 18387, 19247,
+            	        20250, 21357, 22515, 23671, 24775, 25792, 26702, 27497, 28480
+            	    };
+            	    static const int8_t temp_lut[] = {
+            	        -30, -20, -10, 0, 10, 20, 30,
+            	        40, 50, 60, 70, 80, 90, 100, 110, 125
+            	    };
+
+            	    int16_t temp = -30;
+            	    uint8_t points = sizeof(adc_lut) / sizeof(adc_lut[0]);
+
+            	    if (raw <= adc_lut[0]) {
+            	        temp = temp_lut[0];
+            	    } else if (raw >= adc_lut[points - 1]) {
+            	        temp = temp_lut[points - 1];
+            	    } else {
+            	        for (uint8_t i = 0; i < points - 1; i++) {
+            	            if (raw >= adc_lut[i] && raw <= adc_lut[i + 1]) {
+            	                // Interpolació lineal entera entre els dos punts més propers
+            	                int32_t x0 = adc_lut[i];
+            	                int32_t x1 = adc_lut[i + 1];
+            	                int32_t y0 = temp_lut[i];
+            	                int32_t y1 = temp_lut[i + 1];
+
+            	                temp = (int16_t)(y0 + ((int32_t)(raw - x0) * (y1 - y0)) / (x1 - x0));
+            	                break;
+            	            }
+            	        }
+            	    }
+
+            	    DICCP.IpANLmaxt = temp; // Guardarà 32 amb raw=19435
+            	}
+                else if ((RxData[0] & 0xFF) == 0x49)
+                {
+                	// 1. Reconstrucció de la dada raw de 16 bits del Bamocar
+                	uint16_t raw = (uint16_t)RxData[1] | ((uint16_t)RxData[2] << 8);
+
+                	// 2. Càlcul lineal senzill sense decimals per al KTY81-210
+                	int32_t temp = ((int32_t)raw * 11) / 1000 - 85;
+
+                	// 3. Clamping de seguretat i assignació al camp del motor
+                	if (temp < -20) temp = -20;
+                	if (temp > 130) temp = 130;
+
+                	DICCP.MpANLmaxt = (int16_t)temp;
+                }
             }
         }
     }
+}

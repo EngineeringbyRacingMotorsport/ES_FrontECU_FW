@@ -1,4 +1,6 @@
 #include "p2f.h"
+#include <stdio.h>
+#include "i2c-lcd.h"
 
 static uint8_t  switch_state_r = 0;                     // Estat en el que es troba el r2d
 static uint32_t temp_R2D = 0;
@@ -149,13 +151,17 @@ void R2D(volatile DICCF_t *DICCF, volatile DICCP_t *DICCP){
 		DICCP-> FpDIGr2d = 1;
 	}
 }
-void Display(DICCF_t *DICCF, DICCP_t *DICCP){
-	uint8_t 	BMSerror = DICCP-> FpINTebms;								// Valor de si hi ha error de BMS
-	uint8_t 	IMDerror = DICCP-> FpINTeimd;								// Valor de si hi ha error de IMD
+void Display(volatile DICCF_t *DICCF, volatile DICCP_t *DICCP){
+	char buffer[10];
+
+	uint8_t 	BMSerror = DICCP-> SpSDCbms;								// Valor de si hi ha error de BMS
+	/*uint8_t 	IMDerror = DICCP-> SpSDCimd;*/								// Valor de si hi ha error de IMD
 	uint8_t 	APPerror = DICCP-> FpERRapps;								// Valor de si hi ha error de APPS
 	// fila 0 pantalla
 	lcd_send_cmd (0x80|0x00);
-	lcd_send_string("BxxC");
+	sprintf(buffer, "B%02dC", DICCP->BpANLmaxt);
+	lcd_send_string(buffer);
+
 	lcd_send_cmd (0x80|(0x00+5));
 	lcd_send_string("120km/h");
 	lcd_send_cmd (0x80|(0x00+13));
@@ -165,9 +171,13 @@ void Display(DICCF_t *DICCF, DICCP_t *DICCP){
 
 	// fila 1 pantalla
 	lcd_send_cmd (0x80|0x40);
-	lcd_send_string("IxxC");
+	sprintf(buffer, "I%02dC", DICCP->IpANLmaxt);
+	lcd_send_string(buffer);
+
 	lcd_send_cmd (0x80|(0x40+5));
-	lcd_send_string("100%");
+	sprintf(buffer, "%dA", DICCP->BpANLbatc);
+	lcd_send_string(buffer);
+
 	lcd_send_cmd (0x80|(0x40+13));
 	lcd_send_string("010");
 	if (BMSerror == 1)
@@ -175,22 +185,28 @@ void Display(DICCF_t *DICCF, DICCP_t *DICCP){
 		lcd_send_cmd (0x80|(0x40+17));
 		lcd_send_string("BMS");
 	}
-	if (IMDerror == 1)
+	/*if (IMDerror == 1)
 	{
 		lcd_send_cmd (0x80|(0x40+17));
 		lcd_send_string("IMD");
-	}
+	}*/
 	if (APPerror == 1)
 	{
 		lcd_send_cmd (0x80|(0x40+17));
 		lcd_send_string("APP");
 	}
 
-	// fila 2 pantalla
-	lcd_send_cmd (0x80|0x14);
-	lcd_send_string("MxxC");
-	lcd_send_cmd (0x80|(0x14+5));
-	lcd_send_string("348V");
+	// Envia el text "MxxC" a la posició corresponent
+	lcd_send_cmd(0x80 | 0x14);
+	sprintf(buffer, "M%02dC", DICCP->MpANLmaxt);
+	lcd_send_string(buffer);
+
+	// Formata el valor enter de BpANLbatv afegint la 'V' al final (ex: "400V")
+	sprintf(buffer, "%dV", DICCP->BpANLbatv);
+
+	// Envia la posició i la cadena formatada al LCD
+	lcd_send_cmd(0x80 | (0x14 + 5));
+	lcd_send_string(buffer);
 
 	// fila 3 pantalla
 	lcd_send_cmd (0x80|(0x54+5));

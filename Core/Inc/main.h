@@ -139,6 +139,13 @@ typedef struct {
 	uint8_t  DpSDC		   ;
 	uint8_t  SpSDCbms	   ;
 	uint8_t  ApTHRhv       ;
+
+	uint16_t BpANLbatv     ;
+	uint16_t BpANLbatc     ;
+	uint8_t  BpANLmaxt     ;
+
+	uint16_t IpANLmaxt     ;
+	uint16_t MpANLmaxt     ;
 } DICCP_t;
 
 /* USER CODE END Private defines */

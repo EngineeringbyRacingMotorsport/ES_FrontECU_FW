@@ -22,13 +22,13 @@ void DICCF2DICCP(volatile DICCF_t *DICCF, volatile DICCP_t *DICCP) {
 	DICCP->FpINTr2d=!DICCF->FfINTr2d;
 
 	// Si el valor és major que 1500, fa la resta i multiplica per 8. Si no, clava el resultat a 0.
-	DICCP->FpANLRpot = (DICCF->FfANLRpot >= 3200) ? 32000 :
-	                   (DICCF->FfANLRpot <= 1600)  ? 0 :
-	                   (DICCF->FfANLRpot - 1505) * 335 / 17;
+	DICCP->FpANLRpot = (DICCF->FfANLRpot >= 3110) ? 32000 :
+	                   (DICCF->FfANLRpot <= 1570)  ? 0 :
+	                   (DICCF->FfANLRpot - 1505) * 338 / 17;
 
 	DICCP->FpANLLpot = (DICCF->FfANLLpot >= 2800) ? 32000 :
 	                   (DICCF->FfANLLpot <= 1200)  ? 0 :
-	                   (DICCF->FfANLLpot - 1125) * 335 / 17;
+	                   (DICCF->FfANLLpot - 1125) * 338 / 17;
 
 	DICCP->FpDIGRpot = (DICCF->FfANLRpot >= 3248) ? 255 :
 	                   (DICCF->FfANLRpot <= 1431)  ? 0 :
