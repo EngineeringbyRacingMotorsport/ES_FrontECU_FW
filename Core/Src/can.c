@@ -134,18 +134,23 @@ void HAL_FDCAN_RxFifo0Callback(FDCAN_HandleTypeDef *hfdcan, uint32_t RxFifo0ITs)
             	{
             	    uint16_t raw = (uint16_t)RxData[1] | ((uint16_t)RxData[2] << 8);
 
-            	    // Taula de punts de referència directes del fabricant (ADC vs Temp)
+            	    // Taula de calibració per a BaC2 NTC-infin (de -35 °C a 155 °C, pas de 5 °C)
             	    static const uint16_t adc_lut[] = {
-            	        16308, 16487, 16757, 17151, 17688, 18387, 19247,
-            	        20250, 21357, 22515, 23671, 24775, 25792, 26702, 27497, 28480
-            	    };
-            	    static const int8_t temp_lut[] = {
-            	        -30, -20, -10, 0, 10, 20, 30,
-            	        40, 50, 60, 70, 80, 90, 100, 110, 125
+            	        16245, 16308, 16387, 16487, 16609, 16759, 16938, 17151, 17400, 17688,
+            	        18017, 18387, 18797, 19247, 19733, 20250, 20793, 21357, 21933, 22515,
+            	        23097, 23671, 24232, 24775, 25296, 25792, 26261, 26702, 27114, 27497,
+            	        27851, 28179, 28480, 28757, 29011, 29243, 29456, 29650, 29827
             	    };
 
-            	    int16_t temp = -30;
+            	    static const int16_t temp_lut[] = {
+            	        -35, -30, -25, -20, -15, -10,  -5,   0,   5,  10,
+            	         15,  20,  25,  30,  35,  40,  45,  50,  55,  60,
+            	         65,  70,  75,  80,  85,  90,  95, 100, 105, 110,
+            	        115, 120, 125, 130, 135, 140, 145, 150, 155
+            	    };
+
             	    uint8_t points = sizeof(adc_lut) / sizeof(adc_lut[0]);
+            	    int16_t temp = temp_lut[0];
 
             	    if (raw <= adc_lut[0]) {
             	        temp = temp_lut[0];
@@ -166,22 +171,60 @@ void HAL_FDCAN_RxFifo0Callback(FDCAN_HandleTypeDef *hfdcan, uint32_t RxFifo0ITs)
             	        }
             	    }
 
-            	    DICCP.IpANLmaxt = temp; // Guardarà 32 amb raw=19435
+            	    DICCP.IpANLmaxt = temp;
             	}
-                else if ((RxData[0] & 0xFF) == 0x49)
-                {
-                	// 1. Reconstrucció de la dada raw de 16 bits del Bamocar
-                	uint16_t raw = (uint16_t)RxData[1] | ((uint16_t)RxData[2] << 8);
+            	else if ((RxData[0] & 0xFF) == 0x49)
+            	{
+            	    // 1. Reconstrucció de la dada raw en Little Endian
+            	    uint16_t raw = (uint16_t)RxData[1] | ((uint16_t)RxData[2] << 8);
 
-                	// 2. Càlcul lineal senzill sense decimals per al KTY81-210
-                	int32_t temp = ((int32_t)raw * 11) / 1000 - 85;
+            	    // 2. Taula de calibració per a KTY81-2xx (de -35 °C a 155 °C, pas de 5 °C)
+            	    static const uint16_t raw_lut[] = {
+            	        7414,  7687,  7962,  8240,  8520,  8802,  9085,  9369,  9654,  9939,
+            	        10225, 10510, 10795, 11080, 11364, 11646, 11927, 12207, 12485, 12762,
+            	        13036, 13308, 13578, 13846, 14111, 14373, 14633, 14890, 15144, 15391,
+            	        15628, 15852, 16061, 16251, 16421, 16569, 16692, 16789, 16857
+            	    };
 
-                	// 3. Clamping de seguretat i assignació al camp del motor
-                	if (temp < -20) temp = -20;
-                	if (temp > 130) temp = 130;
+            	    static const int16_t temp_lut[] = {
+            	        -35, -30, -25, -20, -15, -10,  -5,   0,   5,  10,
+            	         15,  20,  25,  30,  35,  40,  45,  50,  55,  60,
+            	         65,  70,  75,  80,  85,  90,  95, 100, 105, 110,
+            	        115, 120, 125, 130, 135, 140, 145, 150, 155
+            	    };
 
-                	DICCP.MpANLmaxt = (int16_t)temp;
-                }
+            	    const uint8_t lut_size = sizeof(raw_lut) / sizeof(raw_lut[0]);
+            	    int32_t temp;
+
+            	    // 3. Interpolació no lineal segons el tram del valor raw
+            	    if (raw <= raw_lut[0])
+            	    {
+            	        temp = temp_lut[0];
+            	    }
+            	    else if (raw >= raw_lut[lut_size - 1])
+            	    {
+            	        temp = temp_lut[lut_size - 1];
+            	    }
+            	    else
+            	    {
+            	        // Cerca de l'interval corresponent
+            	        uint8_t i = 0;
+            	        while (i < (lut_size - 1) && raw > raw_lut[i + 1])
+            	        {
+            	            i++;
+            	        }
+
+            	        // Interpolació lineal local entre els dos punts de la corba
+            	        int32_t raw_min = raw_lut[i];
+            	        int32_t raw_max = raw_lut[i + 1];
+            	        int32_t t_min   = temp_lut[i];
+            	        int32_t t_max   = temp_lut[i + 1];
+
+            	        temp = t_min + (((int32_t)(raw - raw_min) * (t_max - t_min)) / (raw_max - raw_min));
+            	    }
+
+            	    DICCP.MpANLmaxt = (int16_t)temp;
+            	}
             }
         }
     }

@@ -175,7 +175,7 @@ void Display(volatile DICCF_t *DICCF, volatile DICCP_t *DICCP){
 	lcd_send_string(buffer);
 
 	lcd_send_cmd (0x80|(0x40+5));
-	sprintf(buffer, "%dA", DICCP->BpANLbatc);
+	sprintf(buffer, "%3dA", DICCP->BpANLbatc);
 	lcd_send_string(buffer);
 
 	lcd_send_cmd (0x80|(0x40+13));
@@ -202,10 +202,9 @@ void Display(volatile DICCF_t *DICCF, volatile DICCP_t *DICCP){
 	lcd_send_string(buffer);
 
 	// Formata el valor enter de BpANLbatv afegint la 'V' al final (ex: "400V")
-	sprintf(buffer, "%dV", DICCP->BpANLbatv);
-
 	// Envia la posició i la cadena formatada al LCD
-	lcd_send_cmd(0x80 | (0x14 + 5));
+	lcd_send_cmd(0x80 | (0x14 + 7));
+	sprintf(buffer, "%dV", DICCP->BpANLbatv);
 	lcd_send_string(buffer);
 
 	// fila 3 pantalla
