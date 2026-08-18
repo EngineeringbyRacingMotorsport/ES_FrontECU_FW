@@ -1207,57 +1207,57 @@ void DICCF2DICCP(volatile DICCF_t *DICCF, volatile DICCP_t *DICCP) {
  8000a68:	683a      	ldr	r2, [r7, #0]
  8000a6a:	8053      	strh	r3, [r2, #2]
 
-	DICCP->FpDIGRpot = (DICCF->FfANLRpot >= 3248) ? 255 :
+	DICCP->FpDIGRpot = (DICCF->FfANLRpot >= 3110) ? 255 :
  8000a6c:	687b      	ldr	r3, [r7, #4]
  8000a6e:	881b      	ldrh	r3, [r3, #0]
  8000a70:	b29b      	uxth	r3, r3
- 8000a72:	f5b3 6f4b 	cmp.w	r3, #3248	@ 0xcb0
- 8000a76:	d219      	bcs.n	8000aac <DICCF2DICCP+0xf0>
-	                   (DICCF->FfANLRpot <= 1431) ? 0 :
- 8000a78:	687b      	ldr	r3, [r7, #4]
- 8000a7a:	881b      	ldrh	r3, [r3, #0]
- 8000a7c:	b29b      	uxth	r3, r3
-	DICCP->FpDIGRpot = (DICCF->FfANLRpot >= 3248) ? 255 :
- 8000a7e:	f5b3 6fb3 	cmp.w	r3, #1432	@ 0x598
- 8000a82:	d311      	bcc.n	8000aa8 <DICCF2DICCP+0xec>
+ 8000a72:	f640 4225 	movw	r2, #3109	@ 0xc25
+ 8000a76:	4293      	cmp	r3, r2
+ 8000a78:	d81a      	bhi.n	8000ab0 <DICCF2DICCP+0xf4>
+	                   (DICCF->FfANLRpot <= 1570) ? 0 :
+ 8000a7a:	687b      	ldr	r3, [r7, #4]
+ 8000a7c:	881b      	ldrh	r3, [r3, #0]
+ 8000a7e:	b29b      	uxth	r3, r3
+	DICCP->FpDIGRpot = (DICCF->FfANLRpot >= 3110) ? 255 :
+ 8000a80:	f240 6222 	movw	r2, #1570	@ 0x622
+ 8000a84:	4293      	cmp	r3, r2
+ 8000a86:	d911      	bls.n	8000aac <DICCF2DICCP+0xf0>
 	                   ((DICCF->FfANLRpot - 1505) * 51) / 330;
- 8000a84:	687b      	ldr	r3, [r7, #4]
- 8000a86:	881b      	ldrh	r3, [r3, #0]
- 8000a88:	b29b      	uxth	r3, r3
- 8000a8a:	f2a3 52e1 	subw	r2, r3, #1505	@ 0x5e1
- 8000a8e:	4613      	mov	r3, r2
- 8000a90:	005b      	lsls	r3, r3, #1
- 8000a92:	4413      	add	r3, r2
- 8000a94:	011a      	lsls	r2, r3, #4
+ 8000a88:	687b      	ldr	r3, [r7, #4]
+ 8000a8a:	881b      	ldrh	r3, [r3, #0]
+ 8000a8c:	b29b      	uxth	r3, r3
+ 8000a8e:	f2a3 52e1 	subw	r2, r3, #1505	@ 0x5e1
+ 8000a92:	4613      	mov	r3, r2
+ 8000a94:	005b      	lsls	r3, r3, #1
  8000a96:	4413      	add	r3, r2
- 8000a98:	4a26      	ldr	r2, [pc, #152]	@ (8000b34 <DICCF2DICCP+0x178>)
- 8000a9a:	fb82 1203 	smull	r1, r2, r2, r3
- 8000a9e:	11d2      	asrs	r2, r2, #7
- 8000aa0:	17db      	asrs	r3, r3, #31
- 8000aa2:	1ad3      	subs	r3, r2, r3
-	DICCP->FpDIGRpot = (DICCF->FfANLRpot >= 3248) ? 255 :
- 8000aa4:	b2db      	uxtb	r3, r3
- 8000aa6:	e002      	b.n	8000aae <DICCF2DICCP+0xf2>
- 8000aa8:	2300      	movs	r3, #0
- 8000aaa:	e000      	b.n	8000aae <DICCF2DICCP+0xf2>
- 8000aac:	23ff      	movs	r3, #255	@ 0xff
- 8000aae:	683a      	ldr	r2, [r7, #0]
- 8000ab0:	7113      	strb	r3, [r2, #4]
+ 8000a98:	011a      	lsls	r2, r3, #4
+ 8000a9a:	4413      	add	r3, r2
+ 8000a9c:	4a25      	ldr	r2, [pc, #148]	@ (8000b34 <DICCF2DICCP+0x178>)
+ 8000a9e:	fb82 1203 	smull	r1, r2, r2, r3
+ 8000aa2:	11d2      	asrs	r2, r2, #7
+ 8000aa4:	17db      	asrs	r3, r3, #31
+ 8000aa6:	1ad3      	subs	r3, r2, r3
+	DICCP->FpDIGRpot = (DICCF->FfANLRpot >= 3110) ? 255 :
+ 8000aa8:	b2db      	uxtb	r3, r3
+ 8000aaa:	e002      	b.n	8000ab2 <DICCF2DICCP+0xf6>
+ 8000aac:	2300      	movs	r3, #0
+ 8000aae:	e000      	b.n	8000ab2 <DICCF2DICCP+0xf6>
+ 8000ab0:	23ff      	movs	r3, #255	@ 0xff
+ 8000ab2:	683a      	ldr	r2, [r7, #0]
+ 8000ab4:	7113      	strb	r3, [r2, #4]
 
-	DICCP->FpDIGLpot = (DICCF->FfANLLpot >= 2871) ? 255 :
- 8000ab2:	687b      	ldr	r3, [r7, #4]
- 8000ab4:	885b      	ldrh	r3, [r3, #2]
- 8000ab6:	b29b      	uxth	r3, r3
- 8000ab8:	f640 3236 	movw	r2, #2870	@ 0xb36
- 8000abc:	4293      	cmp	r3, r2
- 8000abe:	d81a      	bhi.n	8000af6 <DICCF2DICCP+0x13a>
-	                   (DICCF->FfANLLpot <= 1052)  ? 0 :
- 8000ac0:	687b      	ldr	r3, [r7, #4]
- 8000ac2:	885b      	ldrh	r3, [r3, #2]
- 8000ac4:	b29b      	uxth	r3, r3
-	DICCP->FpDIGLpot = (DICCF->FfANLLpot >= 2871) ? 255 :
- 8000ac6:	f240 421c 	movw	r2, #1052	@ 0x41c
- 8000aca:	4293      	cmp	r3, r2
+	DICCP->FpDIGLpot = (DICCF->FfANLLpot >= 2800) ? 255 :
+ 8000ab6:	687b      	ldr	r3, [r7, #4]
+ 8000ab8:	885b      	ldrh	r3, [r3, #2]
+ 8000aba:	b29b      	uxth	r3, r3
+ 8000abc:	f5b3 6f2f 	cmp.w	r3, #2800	@ 0xaf0
+ 8000ac0:	d219      	bcs.n	8000af6 <DICCF2DICCP+0x13a>
+	                   (DICCF->FfANLLpot <= 1200)  ? 0 :
+ 8000ac2:	687b      	ldr	r3, [r7, #4]
+ 8000ac4:	885b      	ldrh	r3, [r3, #2]
+ 8000ac6:	b29b      	uxth	r3, r3
+	DICCP->FpDIGLpot = (DICCF->FfANLLpot >= 2800) ? 255 :
+ 8000ac8:	f5b3 6f96 	cmp.w	r3, #1200	@ 0x4b0
  8000acc:	d911      	bls.n	8000af2 <DICCF2DICCP+0x136>
 	                   ((DICCF->FfANLLpot - 1125) * 51) / 330;
  8000ace:	687b      	ldr	r3, [r7, #4]
@@ -1274,7 +1274,7 @@ void DICCF2DICCP(volatile DICCF_t *DICCF, volatile DICCP_t *DICCP) {
  8000ae8:	11d2      	asrs	r2, r2, #7
  8000aea:	17db      	asrs	r3, r3, #31
  8000aec:	1ad3      	subs	r3, r2, r3
-	DICCP->FpDIGLpot = (DICCF->FfANLLpot >= 2871) ? 255 :
+	DICCP->FpDIGLpot = (DICCF->FfANLLpot >= 2800) ? 255 :
  8000aee:	b2db      	uxtb	r3, r3
  8000af0:	e002      	b.n	8000af8 <DICCF2DICCP+0x13c>
  8000af2:	2300      	movs	r3, #0

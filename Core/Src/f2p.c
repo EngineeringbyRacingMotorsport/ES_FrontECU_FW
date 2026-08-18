@@ -30,12 +30,12 @@ void DICCF2DICCP(volatile DICCF_t *DICCF, volatile DICCP_t *DICCP) {
 	                   (DICCF->FfANLLpot <= 1200) ? 0 :
 	                   (DICCF->FfANLLpot - 1125) * 338 / 17;
 
-	DICCP->FpDIGRpot = (DICCF->FfANLRpot >= 3248) ? 255 :
-	                   (DICCF->FfANLRpot <= 1431) ? 0 :
+	DICCP->FpDIGRpot = (DICCF->FfANLRpot >= 3110) ? 255 :
+	                   (DICCF->FfANLRpot <= 1570) ? 0 :
 	                   ((DICCF->FfANLRpot - 1505) * 51) / 330;
 
-	DICCP->FpDIGLpot = (DICCF->FfANLLpot >= 2871) ? 255 :
-	                   (DICCF->FfANLLpot <= 1052)  ? 0 :
+	DICCP->FpDIGLpot = (DICCF->FfANLLpot >= 2800) ? 255 :
+	                   (DICCF->FfANLLpot <= 1200)  ? 0 :
 	                   ((DICCF->FfANLLpot - 1125) * 51) / 330;
 
 	DICCP->FpANLbrake = (DICCF->FfANLbrake <= 2) ? 0 : (DICCF->FfANLbrake >> 4);
