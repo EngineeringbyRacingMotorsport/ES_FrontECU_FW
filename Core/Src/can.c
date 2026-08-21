@@ -6,8 +6,6 @@
  */
 #include <can.h>
 
-uint32_t sdctimer = 0;
-
 void CAN_Init_Custom(FDCAN_HandleTypeDef *hfdcan) {
     FDCAN_FilterTypeDef sFilterConfig;
 
@@ -114,7 +112,7 @@ void HAL_FDCAN_RxFifo0Callback(FDCAN_HandleTypeDef *hfdcan, uint32_t RxFifo0ITs)
             {
             	if ((RxData[0] & 0xFF) == 1)
             	{
-            		DICCP.BpANLmaxt = ((RxData[1] & 0xFF) - 50);
+            		DICCP.BpANLmaxt   = ((RxData[1] & 0xFF) - 50);
             	}
             }
             if (RxHeader.Identifier == 0x540)
@@ -224,6 +222,17 @@ void HAL_FDCAN_RxFifo0Callback(FDCAN_HandleTypeDef *hfdcan, uint32_t RxFifo0ITs)
             	    }
 
             	    DICCP.MpANLmaxt = (int16_t)temp;
+            	}
+            	else if ((RxData[0] & 0xFF) == 0x30)
+            	{
+            		uint16_t raw = (uint16_t)RxData[1] | ((uint16_t)RxData[2] << 8);
+
+            		uint16_t rpmM = raw/(64/10);
+
+            		uint16_t rpmR = (((float)rpmM * 13.0f) / 40.0f);
+
+            		DICCP.FpDIGvel = (uint16_t)((rpmR / 60.0f) * 0.462f * 3.6f);
+
             	}
             }
         }

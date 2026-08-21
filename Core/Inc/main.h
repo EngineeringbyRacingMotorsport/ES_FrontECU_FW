@@ -107,8 +107,8 @@ typedef struct{
 
 typedef struct {
 	/* ================ MISSATGE 1 ================ */
-	uint16_t  FpANLRpot  ;
-	uint16_t  FpANLLpot  ;
+	uint32_t  FpANLRpot  ;
+	uint32_t  FpANLLpot  ;
 	uint8_t   FpDIGRpot  ;
 	uint8_t   FpDIGLpot  ;
 	uint8_t   FpDIGRvel  ;
@@ -116,7 +116,7 @@ typedef struct {
 	uint16_t  FpANLbrake ;
 
 	/* ================ MISSATGE 2 ================ */
-	uint8_t  FpDIGvel      ;
+	uint16_t FpDIGvel     ;
 	uint8_t  FpANLtaccu    ;
 	uint8_t  FpANLvaccu    ;
 	uint8_t  FpINTsbms     ;
@@ -146,6 +146,8 @@ typedef struct {
 
 	uint16_t IpANLmaxt     ;
 	uint16_t MpANLmaxt     ;
+
+	uint16_t FpANLdist     ;
 } DICCP_t;
 
 /* USER CODE END Private defines */

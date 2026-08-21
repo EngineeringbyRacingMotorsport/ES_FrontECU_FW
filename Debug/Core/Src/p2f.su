@@ -1,4 +1,4 @@
-../Core/Src/p2f.c:8:6:PLC	16	static
-../Core/Src/p2f.c:16:9:APPS	48	static
-../Core/Src/p2f.c:93:6:R2D	16	static
-../Core/Src/p2f.c:154:6:Display	32	static
+../Core/Src/p2f.c:9:6:PLC	16	static
+../Core/Src/p2f.c:17:9:APPS	48	static
+../Core/Src/p2f.c:94:6:R2D	16	static
+../Core/Src/p2f.c:155:6:Display	48	static
