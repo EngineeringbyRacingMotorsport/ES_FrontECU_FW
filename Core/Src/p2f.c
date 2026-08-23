@@ -177,6 +177,10 @@ void Display(volatile DICCF_t *DICCF, volatile DICCP_t *DICCP){
     sprintf(buffer, "%03ukm/h", DICCP->FpDIGvel);
     lcd_send_string(buffer);
 
+    lcd_send_cmd(0x80 | (0x00 + 14));
+    sprintf(buffer, "%05.2fV", DICCP->FpANLlv);
+    lcd_send_string(buffer);
+
 
     // ---------------- FILA 1 ----------------
     lcd_send_cmd(0x80 | 0x40);
@@ -186,9 +190,6 @@ void Display(volatile DICCF_t *DICCF, volatile DICCP_t *DICCP){
     lcd_send_cmd(0x80 | (0x40 + 5));
     sprintf(buffer, "%3uA", DICCP->BpANLbatc);
     lcd_send_string(buffer);
-
-    lcd_send_cmd(0x80 | (0x40 + 13));
-    lcd_send_string("010");
 
 
     if ((DICCP->FpERRapps == 0 && (latch_start_time = HAL_GetTick(), 1)) ||

@@ -126,6 +126,13 @@ void HAL_FDCAN_RxFifo0Callback(FDCAN_HandleTypeDef *hfdcan, uint32_t RxFifo0ITs)
                 // Assignació del valor absolut sense cridar abs()
                 DICCP.BpANLbatc = (val < 0) ? -val : val;
             }
+            if(RxHeader.Identifier == 0x5A0)
+            {
+            	if ((RxData[0] & 0xFF) == 2)
+            	{
+            		DICCP.FpANLlv = ((RxData[2] & 0xFF)*0.2f);
+            	}
+            }
             if (RxHeader.Identifier == 0x103)
             {
             	if ((RxData[0] & 0xFF) == 0x4A)

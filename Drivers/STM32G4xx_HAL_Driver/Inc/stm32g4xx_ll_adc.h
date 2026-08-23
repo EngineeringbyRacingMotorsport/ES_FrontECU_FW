@@ -6483,7 +6483,6 @@ __STATIC_INLINE void LL_ADC_SetChannelSingleDiff(ADC_TypeDef *ADCx, uint32_t Cha
              Channel & ADC_SINGLEDIFF_CHANNEL_MASK,
              (Channel & ADC_SINGLEDIFF_CHANNEL_MASK)
              & (ADC_DIFSEL_DIFSEL >> (SingleDiff & ADC_SINGLEDIFF_CHANNEL_SHIFT_MASK)));
-
 }
 
 /**

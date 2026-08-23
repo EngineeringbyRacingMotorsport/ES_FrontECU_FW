@@ -69,6 +69,12 @@ void Error_Handler(void);
 #define FfANLbrake_GPIO_Port GPIOB
 #define FfSUPled_Pin GPIO_PIN_11
 #define FfSUPled_GPIO_Port GPIOB
+#define FfSDCinertia_Pin GPIO_PIN_12
+#define FfSDCinertia_GPIO_Port GPIOB
+#define FfSDCbots_Pin GPIO_PIN_13
+#define FfSDCbots_GPIO_Port GPIOB
+#define FfSDCcsdb_Pin GPIO_PIN_14
+#define FfSDCcsdb_GPIO_Port GPIOB
 #define FfINTebms_Pin GPIO_PIN_15
 #define FfINTebms_GPIO_Port GPIOB
 #define FfINTrefrion_Pin GPIO_PIN_15
@@ -134,6 +140,7 @@ typedef struct {
 	uint8_t  FpINTtsoff	   ;
 	uint16_t FpSHU         ;
 	uint8_t  FpINTrefrion  ;
+	float    FpANLlv;
 
 	/* ================ HVDB ================ */
 	uint8_t  DpSDC		   ;

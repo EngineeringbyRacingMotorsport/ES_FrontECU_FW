@@ -450,17 +450,17 @@ static void MX_GPIO_Init(void)
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
   HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
 
+  /*Configure GPIO pins : FfSDCinertia_Pin FfSDCbots_Pin FfSDCcsdb_Pin FfINTr2d_Pin */
+  GPIO_InitStruct.Pin = FfSDCinertia_Pin|FfSDCbots_Pin|FfSDCcsdb_Pin|FfINTr2d_Pin;
+  GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
+
   /*Configure GPIO pin : FfINTrefrion_Pin */
   GPIO_InitStruct.Pin = FfINTrefrion_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   HAL_GPIO_Init(FfINTrefrion_GPIO_Port, &GPIO_InitStruct);
-
-  /*Configure GPIO pin : FfINTr2d_Pin */
-  GPIO_InitStruct.Pin = FfINTr2d_Pin;
-  GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
-  GPIO_InitStruct.Pull = GPIO_NOPULL;
-  HAL_GPIO_Init(FfINTr2d_GPIO_Port, &GPIO_InitStruct);
 
   /* USER CODE BEGIN MX_GPIO_Init_2 */
 
