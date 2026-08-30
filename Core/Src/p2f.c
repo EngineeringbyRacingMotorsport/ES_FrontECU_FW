@@ -18,9 +18,9 @@ uint8_t APPS(volatile DICCF_t *DICCF, volatile DICCP_t *DICCP){
 	/*------------VARIABLES APPS-----------*/
 	int32_t 	RPotX = DICCF -> FfANLRpot;																		// Valor que llegeix el ADC del potenciometre dret de l'accelerador
 	int32_t 	LPotX = DICCF -> FfANLLpot;																		// Valor que llegeix el ADC del potenciometre esquerre de l'accelerador
-	uint16_t 	Lpotmin = 1280;
+	uint16_t 	Lpotmin = 1260;
 	uint16_t 	Lpotmax = 2850;
-	uint16_t 	Rpotmin = 1620;
+	uint16_t 	Rpotmin = 1600;
 	uint16_t 	Rpotmax = 3190;
 	static uint8_t 	switch_state_a = 0;																			// Estat en el que es troba el apps
     uint16_t     Perc_Pright = (RPotX - Rpotmin)/((Rpotmax - Rpotmin)/100);                                      // Quantitat de bits que canvia el senyal del potenciometre dret per cada % que trepitjes el pedal dret.

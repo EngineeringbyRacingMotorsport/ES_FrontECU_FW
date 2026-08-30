@@ -238,7 +238,7 @@ void HAL_FDCAN_RxFifo0Callback(FDCAN_HandleTypeDef *hfdcan, uint32_t RxFifo0ITs)
 
             		uint16_t rpmR = (((float)rpmM * 13.0f) / 40.0f);
 
-            		DICCP.FpDIGvel = (uint16_t)((rpmR / 60.0f) * 0.462f * 3.6f);
+            		DICCP.FpDIGvel = (uint16_t)((3/25)*3.1419f*0.231f*rpmR);
 
             	}
             }
