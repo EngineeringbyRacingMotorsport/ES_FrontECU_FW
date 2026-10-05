@@ -8,9 +8,11 @@
 #include "f2p.h"
 
 void DMA2DICCF(volatile DICCF_t *DICCF, volatile uint32_t *buffer) {
-		DICCF->FfANLRpot=buffer[2]&0xFFF;
-		DICCF->FfANLLpot=buffer[1]&0xFFF;
-		DICCF->FfANLbrake=buffer[0]&0xFFF;
+	DICCF->FfANLbrake=buffer[0]&0xFFF;
+	DICCF->FfANLLpot=buffer[1]&0xFFF;
+	DICCF->FfANLRpot=buffer[2]&0xFFF;
+	DICCF->FfANLRsus=buffer[3]&0xFFF;
+	DICCF->FfANLLsus=buffer[4]&0xFFF;
 }
 
 void DIG2DICCF(volatile DICCF_t *DICCF){
@@ -25,21 +27,32 @@ void DICCF2DICCP(volatile DICCF_t *DICCF, volatile DICCP_t *DICCP) {
 	DICCP->FpINTr2d=!DICCF->FfINTr2d;
 
 	// Si el valor és major que 1500, fa la resta i multiplica per 8. Si no, clava el resultat a 0.
-	DICCP->FpANLRpot = (DICCF->FfANLRpot >= 3050) ? 32000 :
-	                   (DICCF->FfANLRpot <= 1720) ? 0 :
-	                   (DICCF->FfANLRpot - 1680) * 370 / 16;
+	DICCP->FpANLRpot = 	(DICCF->FfANLRpot >= 3050) ? 32000 :
+						(DICCF->FfANLRpot <= 1720) ? 0 :
+						(DICCF->FfANLRpot - 1680) * 370 / 16;
 
-	DICCP->FpANLLpot = (DICCF->FfANLLpot >= 2695) ? 32000 :
-	                   (DICCF->FfANLLpot <= 1350) ? 0 :
-	                   (DICCF->FfANLLpot - 1300) * 370 / 16;
+	DICCP->FpANLLpot = 	(DICCF->FfANLLpot >= 2695) ? 32000 :
+						(DICCF->FfANLLpot <= 1350) ? 0 :
+						(DICCF->FfANLLpot - 1300) * 370 / 16;
 
-	DICCP->FpDIGRpot = (DICCF->FfANLRpot >= 3050) ? 255 :
-	                   (DICCF->FfANLRpot <= 1720) ? 0 :
-	                   ((DICCF->FfANLRpot - 1680) * 60) / 330;
+	DICCP->FpDIGRpot = 	(DICCF->FfANLRpot >= 3050) ? 255 :
+						(DICCF->FfANLRpot <= 1720) ? 0 :
+						((DICCF->FfANLRpot - 1680) * 60) / 330;
 
-	DICCP->FpDIGLpot = (DICCF->FfANLLpot >= 2700) ? 255 :
-	                   (DICCF->FfANLLpot <= 1350)  ? 0 :
-	                   ((DICCF->FfANLLpot - 1300) * 60) / 330;
+	DICCP->FpDIGLpot =	(DICCF->FfANLLpot >= 2700) ? 255 :
+						(DICCF->FfANLLpot <= 1350)  ? 0 :
+						((DICCF->FfANLLpot - 1300) * 60) / 330;
+
+	//S'ha d'actualitzar amb els calors reals de max i min de suspensió. Ara mateix són valors de prova.
+
+	DICCP->FpANLRsus = 	(DICCF->FfANLRsus >= 3800/*SUSP_MAX*/) ? 100 :
+	                   	(DICCF->FfANLRsus <= 200/*SUSP_MIN*/) ? 0 :
+	                   	(((DICCF->FfANLRsus - 200/*SUSP_MIN*/) * 100) / (3800/*SUSP_MAX*/ - 200/*SUSP_MIN*/));
+
+	DICCP->FpANLLsus = (DICCF->FfANLLsus >= 3800/*SUSP_MAX*/) ? 100 :
+	                   (DICCF->FfANLLsus <= 200/*SUSP_MIN*/) ? 0 :
+	                   (((DICCF->FfANLLsus - 200/*SUSP_MIN*/) * 100) / (3800/*SUSP_MAX*/ - 200/*SUSP_MIN*/));
+
 
 	DICCP->FpANLbrake = (DICCF->FfANLbrake <= 2) ? 0 : (DICCF->FfANLbrake >> 4);
 

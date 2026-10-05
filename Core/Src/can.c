@@ -34,6 +34,8 @@ void CAN_Msg_Maker(volatile DICCP_t *DICCP, uint8_t *Msg1, uint8_t *Msg2, uint8_
 	Msg1[2] |= (DICCP->FpDIGRvel  & 0xFF);
 	Msg1[3] |= (DICCP->FpDIGLvel  & 0xFF);
 	Msg1[4] |= (DICCP->FpANLbrake & 0xFF);
+	Msg1[5] |= (DICCP->FpANLRpot  & 0xFF);
+	Msg1[6] |= (DICCP->FpANLLpot  & 0xFF);
 
 	/*---------------MISSATGE 2----------------*/
 	Msg2[0] |= ((DICCP->FpINTtsoff   & 0x01) << 0);

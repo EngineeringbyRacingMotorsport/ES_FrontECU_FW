@@ -51,7 +51,7 @@ FDCAN_HandleTypeDef hfdcan1;
 I2C_HandleTypeDef hi2c2;
 
 /* USER CODE BEGIN PV */
-#define DMA_CH1 3
+#define DMA_CH1 5
 uint32_t DICCDMA[DMA_CH1];
 
 volatile DICCF_t DICCF = {0};
