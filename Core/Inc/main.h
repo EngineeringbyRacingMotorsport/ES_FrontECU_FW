@@ -63,6 +63,10 @@ void Error_Handler(void);
 #define FfANLRpot_GPIO_Port GPIOA
 #define FfANLLpot_Pin GPIO_PIN_1
 #define FfANLLpot_GPIO_Port GPIOA
+#define FfANLRsus_Pin GPIO_PIN_2
+#define FfANLRsus_GPIO_Port GPIOA
+#define FfANLLsus_Pin GPIO_PIN_3
+#define FfANLLsus_GPIO_Port GPIOA
 #define FfDIGr2d_Pin GPIO_PIN_4
 #define FfDIGr2d_GPIO_Port GPIOA
 #define FfANLbrake_Pin GPIO_PIN_0

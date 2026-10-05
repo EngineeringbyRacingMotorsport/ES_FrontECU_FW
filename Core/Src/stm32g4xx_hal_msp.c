@@ -115,9 +115,11 @@ void HAL_ADC_MspInit(ADC_HandleTypeDef* hadc)
     /**ADC1 GPIO Configuration
     PA0     ------> ADC1_IN1
     PA1     ------> ADC1_IN2
+    PA2     ------> ADC1_IN3
+    PA3     ------> ADC1_IN4
     PB0     ------> ADC1_IN15
     */
-    GPIO_InitStruct.Pin = FfANLRpot_Pin|FfANLLpot_Pin;
+    GPIO_InitStruct.Pin = FfANLRpot_Pin|FfANLLpot_Pin|FfANLRsus_Pin|FfANLLsus_Pin;
     GPIO_InitStruct.Mode = GPIO_MODE_ANALOG;
     GPIO_InitStruct.Pull = GPIO_NOPULL;
     HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
@@ -172,9 +174,11 @@ void HAL_ADC_MspDeInit(ADC_HandleTypeDef* hadc)
     /**ADC1 GPIO Configuration
     PA0     ------> ADC1_IN1
     PA1     ------> ADC1_IN2
+    PA2     ------> ADC1_IN3
+    PA3     ------> ADC1_IN4
     PB0     ------> ADC1_IN15
     */
-    HAL_GPIO_DeInit(GPIOA, FfANLRpot_Pin|FfANLLpot_Pin);
+    HAL_GPIO_DeInit(GPIOA, FfANLRpot_Pin|FfANLLpot_Pin|FfANLRsus_Pin|FfANLLsus_Pin);
 
     HAL_GPIO_DeInit(FfANLbrake_GPIO_Port, FfANLbrake_Pin);
 
