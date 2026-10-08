@@ -77,8 +77,12 @@ void Error_Handler(void);
 #define FfSDCcsdb_GPIO_Port GPIOB
 #define FfINTebms_Pin GPIO_PIN_15
 #define FfINTebms_GPIO_Port GPIOB
+#define FfDIGRspeed_Pin GPIO_PIN_10
+#define FfDIGRspeed_GPIO_Port GPIOA
 #define FfINTrefrion_Pin GPIO_PIN_15
 #define FfINTrefrion_GPIO_Port GPIOA
+#define FfDIGLspeed_Pin GPIO_PIN_4
+#define FfDIGLspeed_GPIO_Port GPIOB
 #define FfINTr2d_Pin GPIO_PIN_9
 #define FfINTr2d_GPIO_Port GPIOB
 
