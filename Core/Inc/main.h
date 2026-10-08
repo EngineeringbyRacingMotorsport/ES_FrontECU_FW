@@ -125,6 +125,10 @@ typedef struct {
 	uint8_t   FpDIGLvel  ;
 	uint16_t  FpANLbrake ;
 
+	uint16_t  FpANLRspeed ;
+	uint16_t  FpANLLspeed ;
+	uint16_t  FpANLspeed  ;
+
 	/* ================ MISSATGE 2 ================ */
 	uint16_t FpDIGvel     ;
 	uint8_t  FpANLtaccu    ;

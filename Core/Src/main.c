@@ -59,9 +59,9 @@ DMA_HandleTypeDef hdma_tim3_ch1;
 #define ADCDMA_CH1 3
 uint32_t DICCDMA[ADCDMA_CH1] = {0};
 
-#define TIMDMA_Buff 2
-volatile uint32_t TIMDMA1[TIMDMA_Buff] = {0};
-volatile uint32_t TIMDMA3[TIMDMA_Buff] = {0};
+#define TIMDMA_Buff 100
+static volatile uint16_t TIMDMA1[100] = {0};
+static volatile uint16_t TIMDMA3[100] = {0};
 
 volatile DICCF_t DICCF = {0};
 volatile DICCP_t DICCP = {0};
@@ -130,8 +130,8 @@ int main(void)
 
   HAL_ADC_Start_DMA(&hadc1, (uint32_t *)DICCDMA, 3);
 
-  HAL_TIM_IC_Start_DMA(&htim1, TIM_CHANNEL_3, (uint32_t *)TIMDMA1, TIMDMA_Buff);
-  HAL_TIM_IC_Start_DMA(&htim3, TIM_CHANNEL_1, (uint32_t *)TIMDMA3, TIMDMA_Buff);
+  HAL_TIM_IC_Start_DMA(&htim1, TIM_CHANNEL_3, (uint32_t *)TIMDMA1, 100);
+  HAL_TIM_IC_Start_DMA(&htim3, TIM_CHANNEL_1, (uint32_t *)TIMDMA3, 100);
 
   HAL_GPIO_WritePin(GPIOC, FfINTbuzz_Pin, GPIO_PIN_RESET);
   /* USER CODE END 2 */
@@ -149,6 +149,7 @@ int main(void)
 	  uint8_t Msg2[5] = {0};
 	  uint8_t Msg3[4] = {0};
 
+	  f2p_speed_calculator(&DICCF, &DICCP, (uint16_t *)TIMDMA1, (uint16_t *)TIMDMA3);
 
 	  DIG2DICCF(&DICCF);
 
@@ -540,6 +541,35 @@ static void MX_DMA_Init(void)
   HAL_NVIC_SetPriority(DMA1_Channel3_IRQn, 0, 0);
   HAL_NVIC_EnableIRQ(DMA1_Channel3_IRQn);
 
+  /* Initialize DMA channels for TIM1_CH3 and TIM3_CH1 */
+  hdma_tim1_ch3.Instance = DMA1_Channel3;
+  hdma_tim1_ch3.Init.Direction = DMA_PERIPH_TO_MEMORY;
+  hdma_tim1_ch3.Init.PeriphInc = DMA_PINC_DISABLE;
+  hdma_tim1_ch3.Init.MemInc = DMA_MINC_ENABLE;
+  hdma_tim1_ch3.Init.PeriphDataAlignment = DMA_PDATAALIGN_HALFWORD;
+  hdma_tim1_ch3.Init.MemDataAlignment = DMA_MDATAALIGN_HALFWORD;
+  hdma_tim1_ch3.Init.Mode = DMA_CIRCULAR;
+  hdma_tim1_ch3.Init.Priority = DMA_PRIORITY_LOW;
+  if (HAL_DMA_Init(&hdma_tim1_ch3) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  __HAL_LINKDMA(&htim1, hdma[TIM_DMA_ID_CC3], hdma_tim1_ch3);
+
+  hdma_tim3_ch1.Instance = DMA1_Channel2;
+  hdma_tim3_ch1.Init.Direction = DMA_PERIPH_TO_MEMORY;
+  hdma_tim3_ch1.Init.PeriphInc = DMA_PINC_DISABLE;
+  hdma_tim3_ch1.Init.MemInc = DMA_MINC_ENABLE;
+  hdma_tim3_ch1.Init.PeriphDataAlignment = DMA_PDATAALIGN_HALFWORD;
+  hdma_tim3_ch1.Init.MemDataAlignment = DMA_MDATAALIGN_HALFWORD;
+  hdma_tim3_ch1.Init.Mode = DMA_CIRCULAR;
+  hdma_tim3_ch1.Init.Priority = DMA_PRIORITY_LOW;
+  if (HAL_DMA_Init(&hdma_tim3_ch1) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  __HAL_LINKDMA(&htim3, hdma[TIM_DMA_ID_CC1], hdma_tim3_ch1);
+
 }
 
 /**
@@ -601,6 +631,19 @@ static void MX_GPIO_Init(void)
   GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   HAL_GPIO_Init(FfINTrefrion_GPIO_Port, &GPIO_InitStruct);
+
+  /*Configure GPIO pins for Timer Inputs: PA10 (TIM1_CH3) and PB4 (TIM3_CH1) */
+  GPIO_InitStruct.Pin = GPIO_PIN_10;
+  GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_HIGH;
+  HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
+
+  GPIO_InitStruct.Pin = GPIO_PIN_4;
+  GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_HIGH;
+  HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
 
   /* USER CODE BEGIN MX_GPIO_Init_2 */
 

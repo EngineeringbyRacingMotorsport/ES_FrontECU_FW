@@ -52,14 +52,14 @@ void DICCF2DICCP(volatile DICCF_t *DICCF, volatile DICCP_t *DICCP) {
 }
 
 
-#define TIMER_ARR_MAX       0xFFFFFFFF  // 0xFFFFFFFF si el timer es de 32 bits, 0xFFFF si es de 16 bits
+#define TIMER_ARR_MAX       0xFFFF       // Timer de 16 bits
 #define SPEED_TIMEOUT_MS    250         // Tiempo sin pulsos para considerar rueda parada (0 km/h)
 #define FACTOR_SPEED_KMH    123456.0f   // Factor de conversión (depende del perímetro de la rueda y nº de tornillos/dientes)
 
-void f2p_speed_calculator(volatile DICCF_t *DICCF, volatile DICCP_t *DICCP, volatile uint32_t *dma_buf_Rspeed, volatile uint32_t *dma_buf_Lspeed) {
+void f2p_speed_calculator(volatile DICCF_t *DICCF, volatile DICCP_t *DICCP, volatile uint16_t *dma_buf_Rspeed, volatile uint16_t *dma_buf_Lspeed) {
 	// Variables estáticas para mantener el estado entre llamadas
-	static uint32_t prev_capture_R = 0;
-	static uint32_t prev_capture_L = 0;
+	static uint16_t prev_capture_R = 0;
+	static uint16_t prev_capture_L = 0;
 	static uint32_t last_tick_R = 0;
 	static uint32_t last_tick_L = 0;
 
@@ -68,7 +68,7 @@ void f2p_speed_calculator(volatile DICCF_t *DICCF, volatile DICCP_t *DICCP, vola
 	// ==========================================
 	// 1. RUEDA DERECHA (Rspeed)
 	// ==========================================
-	uint32_t current_capture_R = dma_buf_Rspeed[0];
+	uint16_t current_capture_R = dma_buf_Rspeed[0];
 
 	if (current_capture_R != prev_capture_R) {
 		uint32_t delta_t_R;
@@ -95,7 +95,7 @@ void f2p_speed_calculator(volatile DICCF_t *DICCF, volatile DICCP_t *DICCP, vola
 	// ==========================================
 	// 2. RUEDA IZQUIERDA (Lspeed)
 	// ==========================================
-	uint32_t current_capture_L = dma_buf_Lspeed[0];
+	uint16_t current_capture_L = dma_buf_Lspeed[0];
 
 	if (current_capture_L != prev_capture_L) {
 		uint32_t delta_t_L;
