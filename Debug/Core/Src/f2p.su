@@ -1,4 +1,5 @@
 ../Core/Src/f2p.c:10:6:DMA2DICCF	16	static
 ../Core/Src/f2p.c:16:6:DIG2DICCF	16	static
 ../Core/Src/f2p.c:24:6:DICCF2DICCP	16	static
-../Core/Src/f2p.c:59:6:f2p_speed_calculator	40	static
+../Core/Src/f2p.c:67:10:obtener_ultimo_delta_dma	32	static
+../Core/Src/f2p.c:87:6:f2p_speed_calculator	40	static

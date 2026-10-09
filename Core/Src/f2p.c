@@ -52,87 +52,98 @@ void DICCF2DICCP(volatile DICCF_t *DICCF, volatile DICCP_t *DICCP) {
 }
 
 
-#define TIMER_ARR_MAX       0xFFFF       // Timer de 16 bits
-#define SPEED_TIMEOUT_MS    250         // Tiempo sin pulsos para considerar rueda parada (0 km/h)
-#define FACTOR_SPEED_KMH    123456.0f   // Factor de conversión (depende del perímetro de la rueda y nº de tornillos/dientes)
+// Configuración mecánica y eléctrica
+#define DMA_BUF_SIZE        100         // Tamaño del array DMA (como en tu foto)
+#define TIMER_FREQ_HZ       1000000.0f  // 1 MHz (Prescaler = 95 a 96 MHz Clock)
+#define WHEEL_PERIMETER_M   1.45f       // Ajusta al perímetro real de tu neumático en metros
+#define TEETH_COUNT         10          // 10 tramos de metal por vuelta
+#define SPEED_TIMEOUT_MS    250         // Timeout para considerar rueda parada
 
-void f2p_speed_calculator(volatile DICCF_t *DICCF, volatile DICCP_t *DICCP, volatile uint16_t *dma_buf_Rspeed, volatile uint16_t *dma_buf_Lspeed) {
-	// Variables estáticas para mantener el estado entre llamadas
-	static uint16_t prev_capture_R = 0;
-	static uint16_t prev_capture_L = 0;
-	static uint32_t last_tick_R = 0;
-	static uint32_t last_tick_L = 0;
+// Factor para obtener velocidad en DÉCIMAS de km/h (ej: 1205 = 120.5 km/h)
+// Formula: (Perímetro / Nº_Dientes) * Frecuencia_Timer * 36
+#define FACTOR_SPEED_KMH    ((WHEEL_PERIMETER_M / (float)TEETH_COUNT) * TIMER_FREQ_HZ * 36.0f)
 
-	uint32_t current_time = HAL_GetTick();
+// Función auxiliar para obtener el tiempo entre los dos últimos impulsos depositados por el DMA
+uint16_t obtener_ultimo_delta_dma(volatile uint16_t *buf, DMA_HandleTypeDef *hdma) {
+    // CNDTR decrece desde DMA_BUF_SIZE hasta 0
+    uint16_t remaining = __HAL_DMA_GET_COUNTER(hdma);
+    uint16_t head = (DMA_BUF_SIZE - remaining) % DMA_BUF_SIZE; // Siguiente posición a escribir por DMA
 
-	// ==========================================
-	// 1. RUEDA DERECHA (Rspeed)
-	// ==========================================
-	uint16_t current_capture_R = dma_buf_Rspeed[0];
+    // Tomamos las dos últimas posiciones que el DMA escribió consecutivamente
+    uint16_t curr_idx = (head == 0) ? (DMA_BUF_SIZE - 1) : (head - 1);
+    uint16_t prev_idx = (curr_idx == 0) ? (DMA_BUF_SIZE - 1) : (curr_idx - 1);
 
-	if (current_capture_R != prev_capture_R) {
-		uint32_t delta_t_R;
+    uint16_t t_curr = buf[curr_idx];
+    uint16_t t_prev = buf[prev_idx];
 
-		// Manejo de desbordamiento (rollover) del contador del Timer
-		if (current_capture_R >= prev_capture_R) {
-			delta_t_R = current_capture_R - prev_capture_R;
-		} else {
-			delta_t_R = (TIMER_ARR_MAX - prev_capture_R) + current_capture_R;
-		}
+    // Cálculo del tiempo con gestión de rollover de 16 bits
+    if (t_curr >= t_prev) {
+        return t_curr - t_prev;
+    } else {
+        return (65536 - t_prev) + t_curr;
+    }
+}
 
-		prev_capture_R = current_capture_R;
-		last_tick_R = current_time;
+void f2p_speed_calculator(volatile DICCF_t *DICCF,
+                          volatile DICCP_t *DICCP,
+                          volatile uint16_t *dma_buf_Rspeed,
+                          volatile uint16_t *dma_buf_Lspeed,
+                          DMA_HandleTypeDef *hdma_Rspeed,
+                          DMA_HandleTypeDef *hdma_Lspeed)
+{
+    static uint16_t last_capture_R = 0;
+    static uint16_t last_capture_L = 0;
+    static uint32_t last_tick_R = 0;
+    static uint32_t last_tick_L = 0;
 
-		if (delta_t_R > 0) {
-			// Sustituye FpANLRspeed por el nombre exacto de la variable en tu struct DICCP
-			DICCP->FpANLRspeed = (uint16_t)(FACTOR_SPEED_KMH / (float)delta_t_R);
-		}
-	} else if ((current_time - last_tick_R) > SPEED_TIMEOUT_MS) {
-		// Timeout: La rueda se ha detenido
-		DICCP->FpANLRspeed = 0;
-	}
+    uint32_t current_time = HAL_GetTick();
 
-	// ==========================================
-	// 2. RUEDA IZQUIERDA (Lspeed)
-	// ==========================================
-	uint16_t current_capture_L = dma_buf_Lspeed[0];
+    // ==========================================
+    // 1. RUEDA DERECHA (Rspeed)
+    // ==========================================
+    uint16_t delta_t_R = obtener_ultimo_delta_dma(dma_buf_Rspeed, hdma_Rspeed);
 
-	if (current_capture_L != prev_capture_L) {
-		uint32_t delta_t_L;
+    // Verificamos si el DMA ha recibido un pulso nuevo comparando la muestra actual
+    uint16_t current_head_R = dma_buf_Rspeed[(DMA_BUF_SIZE - __HAL_DMA_GET_COUNTER(hdma_Rspeed)) % DMA_BUF_SIZE];
 
-		if (current_capture_L >= prev_capture_L) {
-			delta_t_L = current_capture_L - prev_capture_L;
-		} else {
-			delta_t_L = (TIMER_ARR_MAX - prev_capture_L) + current_capture_L;
-		}
+    if (current_head_R != last_capture_R) {
+        last_capture_R = current_head_R;
+        last_tick_R = current_time;
 
-		prev_capture_L = current_capture_L;
-		last_tick_L = current_time;
+        if (delta_t_R > 0) {
+            DICCP->FpANLRspeed = (uint16_t)(FACTOR_SPEED_KMH / (float)delta_t_R);
+        }
+    } else if ((current_time - last_tick_R) > SPEED_TIMEOUT_MS) {
+        DICCP->FpANLRspeed = 0; // Rueda parada
+    }
 
-		if (delta_t_L > 0) {
-			// Sustituye FpANLLspeed por el nombre exacto de la variable en tu struct DICCP
-			DICCP->FpANLLspeed = (uint16_t)(FACTOR_SPEED_KMH / (float)delta_t_L);
-		}
-	} else if ((current_time - last_tick_L) > SPEED_TIMEOUT_MS) {
-		// Timeout: La rueda se ha detenido
-		DICCP->FpANLLspeed = 0;
-	}
+    // ==========================================
+    // 2. RUEDA IZQUIERDA (Lspeed)
+    // ==========================================
+    uint16_t delta_t_L = obtener_ultimo_delta_dma(dma_buf_Lspeed, hdma_Lspeed);
+    uint16_t current_head_L = dma_buf_Lspeed[(DMA_BUF_SIZE - __HAL_DMA_GET_COUNTER(hdma_Lspeed)) % DMA_BUF_SIZE];
 
-	// ==========================================
-	// 3. VELOCIDAD GENERAL DEL VEHÍCULO
-	// ==========================================
-	// Si ambos sensores están dando lectura (coche en movimiento normal)
-	if (DICCP->FpANLRspeed > 0 && DICCP->FpANLLspeed > 0) {
-		DICCP->FpANLspeed = (DICCP->FpANLRspeed + DICCP->FpANLLspeed) / 2;
-	}
-	// Redundancia: si un sensor falla o la rueda patina/bloquea completamente
-	else if (DICCP->FpANLRspeed > 0) {
-		DICCP->FpANLspeed = DICCP->FpANLRspeed;
-	}
-	else if (DICCP->FpANLLspeed > 0) {
-		DICCP->FpANLspeed = DICCP->FpANLLspeed;
-	}
-	else {
-		DICCP->FpANLspeed = 0;
-	}
+    if (current_head_L != last_capture_L) {
+        last_capture_L = current_head_L;
+        last_tick_L = current_time;
+
+        if (delta_t_L > 0) {
+            DICCP->FpANLLspeed = (uint16_t)(FACTOR_SPEED_KMH / (float)delta_t_L);
+        }
+    } else if ((current_time - last_tick_L) > SPEED_TIMEOUT_MS) {
+        DICCP->FpANLLspeed = 0; // Rueda parada
+    }
+
+    // ==========================================
+    // 3. VELOCIDAD GENERAL DEL VEHÍCULO
+    // ==========================================
+    if (DICCP->FpANLRspeed > 0 && DICCP->FpANLLspeed > 0) {
+        DICCP->FpANLspeed = (DICCP->FpANLRspeed + DICCP->FpANLLspeed) / 2;
+    } else if (DICCP->FpANLRspeed > 0) {
+        DICCP->FpANLspeed = DICCP->FpANLRspeed;
+    } else if (DICCP->FpANLLspeed > 0) {
+        DICCP->FpANLspeed = DICCP->FpANLLspeed;
+    } else {
+        DICCP->FpANLspeed = 0;
+    }
 }

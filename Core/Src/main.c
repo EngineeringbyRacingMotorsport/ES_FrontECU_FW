@@ -149,7 +149,7 @@ int main(void)
 	  uint8_t Msg2[5] = {0};
 	  uint8_t Msg3[4] = {0};
 
-	  f2p_speed_calculator(&DICCF, &DICCP, (uint16_t *)TIMDMA1, (uint16_t *)TIMDMA3);
+	  f2p_speed_calculator(&DICCF, &DICCP, TIMDMA1, TIMDMA3, &hdma_tim1_ch3, &hdma_tim3_ch1);
 
 	  DIG2DICCF(&DICCF);
 
