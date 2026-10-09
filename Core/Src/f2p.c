@@ -95,6 +95,9 @@ void f2p_speed_calculator(volatile DICCF_t *DICCF,
     static uint16_t last_capture_L = 0;
     static uint32_t last_tick_R = 0;
     static uint32_t last_tick_L = 0;
+    static uint16_t Rspeedm [10];
+    static uint16_t Lspeedm [10];
+    static uint8_t i = 0;
 
     uint32_t current_time = HAL_GetTick();
 
@@ -104,36 +107,39 @@ void f2p_speed_calculator(volatile DICCF_t *DICCF,
     uint16_t delta_t_R = obtener_ultimo_delta_dma(dma_buf_Rspeed, hdma_Rspeed);
 
     // Verificamos si el DMA ha recibido un pulso nuevo comparando la muestra actual
-    uint16_t current_head_R = dma_buf_Rspeed[(DMA_BUF_SIZE - __HAL_DMA_GET_COUNTER(hdma_Rspeed)) % DMA_BUF_SIZE];
+    uint16_t current_head_R = dma_buf_Rspeed[(DMA_BUF_SIZE - __HAL_DMA_GET_COUNTER(hdma_Rspeed) + DMA_BUF_SIZE - 1) % DMA_BUF_SIZE];
 
     if (current_head_R != last_capture_R) {
         last_capture_R = current_head_R;
         last_tick_R = current_time;
 
         if (delta_t_R > 0) {
-            DICCP->FpANLRspeed = (uint16_t)(FACTOR_SPEED_KMH / (float)delta_t_R);
+        	Rspeedm[i] = (uint16_t)(FACTOR_SPEED_KMH / (float)delta_t_R);
         }
     } else if ((current_time - last_tick_R) > SPEED_TIMEOUT_MS) {
-        DICCP->FpANLRspeed = 0; // Rueda parada
+    	Rspeedm[i] = 0; // Rueda parada
     }
 
     // ==========================================
     // 2. RUEDA IZQUIERDA (Lspeed)
     // ==========================================
     uint16_t delta_t_L = obtener_ultimo_delta_dma(dma_buf_Lspeed, hdma_Lspeed);
-    uint16_t current_head_L = dma_buf_Lspeed[(DMA_BUF_SIZE - __HAL_DMA_GET_COUNTER(hdma_Lspeed)) % DMA_BUF_SIZE];
+    uint16_t current_head_L = dma_buf_Lspeed[(DMA_BUF_SIZE - __HAL_DMA_GET_COUNTER(hdma_Lspeed) + DMA_BUF_SIZE - 1) % DMA_BUF_SIZE];
 
     if (current_head_L != last_capture_L) {
         last_capture_L = current_head_L;
         last_tick_L = current_time;
 
         if (delta_t_L > 0) {
-            DICCP->FpANLLspeed = (uint16_t)(FACTOR_SPEED_KMH / (float)delta_t_L);
+        	Lspeedm[i] = (uint16_t)(FACTOR_SPEED_KMH / (float)delta_t_L);
         }
     } else if ((current_time - last_tick_L) > SPEED_TIMEOUT_MS) {
-        DICCP->FpANLLspeed = 0; // Rueda parada
+    	Lspeedm[i] = 0; // Rueda parada
     }
-
+    i++;
+    if (i == 10) i = 0;
+    DICCP->FpANLRspeed = (Rspeedm[0] + Rspeedm[1] + Rspeedm[2] + Rspeedm[3] + Rspeedm[4] + Rspeedm[5] + Rspeedm[6] + Rspeedm[7] + Rspeedm[8] + Rspeedm[9]) / 10;
+    DICCP->FpANLLspeed = (Lspeedm[0] + Lspeedm[1] + Lspeedm[2] + Lspeedm[3] + Lspeedm[4] + Lspeedm[5] + Lspeedm[6] + Lspeedm[7] + Lspeedm[8] + Lspeedm[9]) / 10;
     // ==========================================
     // 3. VELOCIDAD GENERAL DEL VEHÍCULO
     // ==========================================

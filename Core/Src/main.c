@@ -174,7 +174,6 @@ int main(void)
 	  Display(&DICCF, &DICCP);
 
 	  HAL_Delay(100);
-
   }
   /* USER CODE END 3 */
 }
