@@ -19,6 +19,7 @@ void lcd_send_cmd (char cmd)
 	HAL_I2C_Master_Transmit (&hi2c2, SLAVE_ADDRESS_LCD,(uint8_t *) data_t, 4, 100);
 }
 
+
 void lcd_send_data (char data)
 {
 	char data_u, data_l;
@@ -32,6 +33,12 @@ void lcd_send_data (char data)
 	HAL_I2C_Master_Transmit (&hi2c2, SLAVE_ADDRESS_LCD,(uint8_t *) data_t, 4, 100);
 }
 
+/**
+ * @brief Deja la pantalla lcd en blanco, enviando 100 espacios en blanco. 
+ * 
+ * @param data void
+ * 
+ */
 void lcd_clear (void)
 {
 	lcd_send_cmd (0x00);

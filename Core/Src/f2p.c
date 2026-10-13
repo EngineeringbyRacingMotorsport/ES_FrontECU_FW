@@ -56,8 +56,9 @@ void DICCF2DICCP(volatile DICCF_t *DICCF, volatile DICCP_t *DICCP) {
 #define DMA_BUF_SIZE        100         // Tamaño del array DMA (como en tu foto)
 #define TIMER_FREQ_HZ       1000000.0f  // 1 MHz (Prescaler = 95 a 96 MHz Clock)
 #define WHEEL_PERIMETER_M   1.45f       // Ajusta al perímetro real de tu neumático en metros
-#define TEETH_COUNT         10          // 10 tramos de metal por vuelta
+#define TEETH_COUNT         40         // 10 tramos de metal por vuelta
 #define SPEED_TIMEOUT_MS    250         // Timeout para considerar rueda parada
+
 
 // Factor para obtener velocidad en DÉCIMAS de km/h (ej: 1205 = 120.5 km/h)
 // Formula: (Perímetro / Nº_Dientes) * Frecuencia_Timer * 36
@@ -81,6 +82,23 @@ uint16_t obtener_ultimo_delta_dma(volatile uint16_t *buf, DMA_HandleTypeDef *hdm
         return t_curr - t_prev;
     } else {
         return (65536 - t_prev) + t_curr;
+    }
+}
+
+volatile uint16_t speed_avg_test = 0;
+
+void speed_avg_5s_test(uint16_t speed)
+{
+    static uint32_t sum = 0, count = 0, t0 = 0;
+
+    sum += speed;
+    count++;
+
+    if (HAL_GetTick() - t0 >= 5000)
+    {
+        speed_avg_test = sum / count;
+        sum = 0; count = 0;
+        t0 = HAL_GetTick();
     }
 }
 
@@ -152,4 +170,7 @@ void f2p_speed_calculator(volatile DICCF_t *DICCF,
     } else {
         DICCP->FpANLspeed = 0;
     }
+
 }
+
+

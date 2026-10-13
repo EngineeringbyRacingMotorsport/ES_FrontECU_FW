@@ -172,8 +172,13 @@ int main(void)
 	  PLC(&DICCP);
 
 	  Display(&DICCF, &DICCP);
+	  uint32_t t0 = HAL_GetTick();
+	  while (HAL_GetTick() - t0 < 100)
+	  {
+	    f2p_speed_calculator(&DICCF, &DICCP, TIMDMA1, TIMDMA3, &hdma_tim1_ch3, &hdma_tim3_ch1);
+	    HAL_Delay(5);
+	  }
 
-	  HAL_Delay(100);
   }
   /* USER CODE END 3 */
 }
