@@ -1,6 +1,5 @@
-../Core/Src/f2p.c:10:6:DMA2DICCF	1
-../Core/Src/f2p.c:16:6:DIG2DICCF	1
-../Core/Src/f2p.c:24:6:DICCF2DICCP	12
-../Core/Src/f2p.c:68:10:obtener_ultimo_delta_dma	4
-../Core/Src/f2p.c:90:6:speed_avg_5s_test	2
-../Core/Src/f2p.c:105:6:f2p_speed_calculator	12
+../Core/Src/f2p.c:27:6:DMA2DICCF	1
+../Core/Src/f2p.c:33:6:DIG2DICCF	1
+../Core/Src/f2p.c:41:6:DICCF2DICCP	12
+../Core/Src/f2p.c:71:6:HAL_GPIO_EXTI_Callback	3
+../Core/Src/f2p.c:83:6:Get_Speed	2

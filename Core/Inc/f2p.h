@@ -13,7 +13,6 @@
 void DMA2DICCF(volatile DICCF_t *DICCF, volatile uint32_t *buffer);
 void DIG2DICCF(volatile DICCF_t *DICCF);
 void DICCF2DICCP(volatile DICCF_t *DICCF, volatile DICCP_t *DICCP);
-uint16_t obtener_ultimo_delta_dma(volatile uint16_t *buf, DMA_HandleTypeDef *hdma);
-void f2p_speed_calculator(volatile DICCF_t *DICCF, volatile DICCP_t *DICCP, volatile uint16_t *dma_buf_Rspeed, volatile uint16_t *dma_buf_Lspeed, DMA_HandleTypeDef *hdma_Rspeed, DMA_HandleTypeDef *hdma_Lspeed);
-
+void HAL_GPIO_EXTI_Callback(uint16_t GPIO_PIN);
+void Get_Speed(volatile DICCP_t *DICCP);
 #endif /* INC_F2P_H_ */

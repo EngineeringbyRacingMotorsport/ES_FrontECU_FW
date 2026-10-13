@@ -7,6 +7,23 @@
 
 #include "f2p.h"
 
+volatile uint8_t comptL = 0;
+volatile uint8_t comptR = 0;
+
+volatile uint32_t t_time = 0;
+
+// Configuración mecánica y eléctrica
+#define DMA_BUF_SIZE        100         // Tamaño del array DMA (como en tu foto)
+#define TIMER_FREQ_HZ       1000000.0f  // 1 MHz (Prescaler = 95 a 96 MHz Clock)
+#define WHEEL_PERIMETER_M   1.45f       // Ajusta al perímetro real de tu neumático en metros
+#define TEETH_COUNT         40         // 10 tramos de metal por vuelta
+#define SPEED_TIMEOUT_MS    250         // Timeout para considerar rueda parada
+
+
+// Factor para obtener velocidad en DÉCIMAS de km/h (ej: 1205 = 120.5 km/h)
+// Formula: (Perímetro / Nº_Dientes) * Frecuencia_Timer * 36
+#define FACTOR_SPEED_KMH    ((WHEEL_PERIMETER_M / (float)TEETH_COUNT) * TIMER_FREQ_HZ * 36.0f)
+
 void DMA2DICCF(volatile DICCF_t *DICCF, volatile uint32_t *buffer) {
 		DICCF->FfANLRpot=buffer[2]&0xFFF;
 		DICCF->FfANLLpot=buffer[1]&0xFFF;
@@ -51,126 +68,27 @@ void DICCF2DICCP(volatile DICCF_t *DICCF, volatile DICCP_t *DICCP) {
 
 }
 
+void HAL_GPIO_EXTI_Callback(uint16_t GPIO_PIN)
+  {
+      if (GPIO_PIN == GPIO_PIN_4)
+      {
+          comptL++;
+      }
+      if (GPIO_PIN == GPIO_PIN_10)
+      {
+    	  comptR++;
+      }
+  }
 
-// Configuración mecánica y eléctrica
-#define DMA_BUF_SIZE        100         // Tamaño del array DMA (como en tu foto)
-#define TIMER_FREQ_HZ       1000000.0f  // 1 MHz (Prescaler = 95 a 96 MHz Clock)
-#define WHEEL_PERIMETER_M   1.45f       // Ajusta al perímetro real de tu neumático en metros
-#define TEETH_COUNT         40         // 10 tramos de metal por vuelta
-#define SPEED_TIMEOUT_MS    250         // Timeout para considerar rueda parada
+void Get_Speed(volatile DICCP_t *DICCP){
 
+	if((HAL_GetTick() - t_time) >= 250){
+		DICCP->FpDIGLvel = ((comptL*(14/200)) / ((HAL_GetTick() - t_time)/1000))*(36/10);
+		DICCP->FpDIGRvel = ((comptR*(14/200)) / ((HAL_GetTick() - t_time)/1000))*(36/10);
 
-// Factor para obtener velocidad en DÉCIMAS de km/h (ej: 1205 = 120.5 km/h)
-// Formula: (Perímetro / Nº_Dientes) * Frecuencia_Timer * 36
-#define FACTOR_SPEED_KMH    ((WHEEL_PERIMETER_M / (float)TEETH_COUNT) * TIMER_FREQ_HZ * 36.0f)
+		comptL=0;
+		comptR=0;
 
-// Función auxiliar para obtener el tiempo entre los dos últimos impulsos depositados por el DMA
-uint16_t obtener_ultimo_delta_dma(volatile uint16_t *buf, DMA_HandleTypeDef *hdma) {
-    // CNDTR decrece desde DMA_BUF_SIZE hasta 0
-    uint16_t remaining = __HAL_DMA_GET_COUNTER(hdma);
-    uint16_t head = (DMA_BUF_SIZE - remaining) % DMA_BUF_SIZE; // Siguiente posición a escribir por DMA
-
-    // Tomamos las dos últimas posiciones que el DMA escribió consecutivamente
-    uint16_t curr_idx = (head == 0) ? (DMA_BUF_SIZE - 1) : (head - 1);
-    uint16_t prev_idx = (curr_idx == 0) ? (DMA_BUF_SIZE - 1) : (curr_idx - 1);
-
-    uint16_t t_curr = buf[curr_idx];
-    uint16_t t_prev = buf[prev_idx];
-
-    // Cálculo del tiempo con gestión de rollover de 16 bits
-    if (t_curr >= t_prev) {
-        return t_curr - t_prev;
-    } else {
-        return (65536 - t_prev) + t_curr;
-    }
-}
-
-volatile uint16_t speed_avg_test = 0;
-
-void speed_avg_5s_test(uint16_t speed)
-{
-    static uint32_t sum = 0, count = 0, t0 = 0;
-
-    sum += speed;
-    count++;
-
-    if (HAL_GetTick() - t0 >= 5000)
-    {
-        speed_avg_test = sum / count;
-        sum = 0; count = 0;
-        t0 = HAL_GetTick();
-    }
-}
-
-void f2p_speed_calculator(volatile DICCF_t *DICCF,
-                          volatile DICCP_t *DICCP,
-                          volatile uint16_t *dma_buf_Rspeed,
-                          volatile uint16_t *dma_buf_Lspeed,
-                          DMA_HandleTypeDef *hdma_Rspeed,
-                          DMA_HandleTypeDef *hdma_Lspeed)
-{
-    static uint16_t last_capture_R = 0;
-    static uint16_t last_capture_L = 0;
-    static uint32_t last_tick_R = 0;
-    static uint32_t last_tick_L = 0;
-    static uint16_t Rspeedm [10];
-    static uint16_t Lspeedm [10];
-    static uint8_t i = 0;
-
-    uint32_t current_time = HAL_GetTick();
-
-    // ==========================================
-    // 1. RUEDA DERECHA (Rspeed)
-    // ==========================================
-    uint16_t delta_t_R = obtener_ultimo_delta_dma(dma_buf_Rspeed, hdma_Rspeed);
-
-    // Verificamos si el DMA ha recibido un pulso nuevo comparando la muestra actual
-    uint16_t current_head_R = dma_buf_Rspeed[(DMA_BUF_SIZE - __HAL_DMA_GET_COUNTER(hdma_Rspeed) + DMA_BUF_SIZE - 1) % DMA_BUF_SIZE];
-
-    if (current_head_R != last_capture_R) {
-        last_capture_R = current_head_R;
-        last_tick_R = current_time;
-
-        if (delta_t_R > 0) {
-        	Rspeedm[i] = (uint16_t)(FACTOR_SPEED_KMH / (float)delta_t_R);
-        }
-    } else if ((current_time - last_tick_R) > SPEED_TIMEOUT_MS) {
-    	Rspeedm[i] = 0; // Rueda parada
-    }
-
-    // ==========================================
-    // 2. RUEDA IZQUIERDA (Lspeed)
-    // ==========================================
-    uint16_t delta_t_L = obtener_ultimo_delta_dma(dma_buf_Lspeed, hdma_Lspeed);
-    uint16_t current_head_L = dma_buf_Lspeed[(DMA_BUF_SIZE - __HAL_DMA_GET_COUNTER(hdma_Lspeed) + DMA_BUF_SIZE - 1) % DMA_BUF_SIZE];
-
-    if (current_head_L != last_capture_L) {
-        last_capture_L = current_head_L;
-        last_tick_L = current_time;
-
-        if (delta_t_L > 0) {
-        	Lspeedm[i] = (uint16_t)(FACTOR_SPEED_KMH / (float)delta_t_L);
-        }
-    } else if ((current_time - last_tick_L) > SPEED_TIMEOUT_MS) {
-    	Lspeedm[i] = 0; // Rueda parada
-    }
-    i++;
-    if (i == 10) i = 0;
-    DICCP->FpANLRspeed = (Rspeedm[0] + Rspeedm[1] + Rspeedm[2] + Rspeedm[3] + Rspeedm[4] + Rspeedm[5] + Rspeedm[6] + Rspeedm[7] + Rspeedm[8] + Rspeedm[9]) / 10;
-    DICCP->FpANLLspeed = (Lspeedm[0] + Lspeedm[1] + Lspeedm[2] + Lspeedm[3] + Lspeedm[4] + Lspeedm[5] + Lspeedm[6] + Lspeedm[7] + Lspeedm[8] + Lspeedm[9]) / 10;
-    // ==========================================
-    // 3. VELOCIDAD GENERAL DEL VEHÍCULO
-    // ==========================================
-    if (DICCP->FpANLRspeed > 0 && DICCP->FpANLLspeed > 0) {
-        DICCP->FpANLspeed = (DICCP->FpANLRspeed + DICCP->FpANLLspeed) / 2;
-    } else if (DICCP->FpANLRspeed > 0) {
-        DICCP->FpANLspeed = DICCP->FpANLRspeed;
-    } else if (DICCP->FpANLLspeed > 0) {
-        DICCP->FpANLspeed = DICCP->FpANLLspeed;
-    } else {
-        DICCP->FpANLspeed = 0;
-    }
-
-}
-
-
+		t_time = HAL_GetTick();
+	};
+};
