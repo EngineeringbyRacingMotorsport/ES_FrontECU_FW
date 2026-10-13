@@ -2,4 +2,4 @@
 ../Core/Src/f2p.c:33:6:DIG2DICCF	16	static
 ../Core/Src/f2p.c:41:6:DICCF2DICCP	16	static
 ../Core/Src/f2p.c:71:6:HAL_GPIO_EXTI_Callback	16	static
-../Core/Src/f2p.c:83:6:Get_Speed	16	static
+../Core/Src/f2p.c:83:6:Get_Speed	112	static

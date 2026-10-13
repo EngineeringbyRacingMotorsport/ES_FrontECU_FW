@@ -56,7 +56,8 @@ TIM_HandleTypeDef htim3;
 /* USER CODE BEGIN PV */
 #define ADCDMA_CH1 3
 uint32_t DICCDMA[ADCDMA_CH1] = {0};
-
+uint32_t LastCANSendTime = 0;
+uint16_t numberOfCANMessagesSent=0;
 #define TIMDMA_Buff 100
 static volatile uint16_t TIMDMA1[100] = {0};
 static volatile uint16_t TIMDMA3[100] = {0};
@@ -138,16 +139,19 @@ int main(void)
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
+
   while (1)
   {
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
+
 	  HAL_GPIO_WritePin(GPIOB, FfSUPled_Pin, GPIO_PIN_SET);
 
 	  uint8_t Msg1[5] = {0};
 	  uint8_t Msg2[5] = {0};
 	  uint8_t Msg3[4] = {0};
+
 
 	  DIG2DICCF(&DICCF);
 
@@ -155,25 +159,42 @@ int main(void)
 
 	  DICCF2DICCP(&DICCF, &DICCP);
 
+	  Get_Speed(&DICCP);
+
 	  APPS(&DICCF, &DICCP);
 
 	  R2D(&DICCF, &DICCP);
 
 	  CAN_Msg_Maker(&DICCP, Msg1, Msg2, Msg3);
 
-	  CAN_Send(&hfdcan1, 0x100, Msg1, 5);
 
-	  CAN_Send(&hfdcan1, 0x101, Msg2, 8);
+	  if((HAL_GetTick() - LastCANSendTime) >= 10)
+	  	  {
+		  	  CAN_Send(&hfdcan1, 0x100, Msg1, 5);
 
-	  CAN_Send(&hfdcan1, 0x102, Msg3, 3);
+		  	  CAN_Send(&hfdcan1, 0x101, Msg2, 8);
+
+		  	  CAN_Send(&hfdcan1, 0x102, Msg3, 3);
+
+	  		  LastCANSendTime = HAL_GetTick();
+
+	  		  numberOfCANMessagesSent++;
+
+	  		  if(numberOfCANMessagesSent > 100)
+	  		  {
+	  			  /*HAL_GPIO_TogglePin(GPIOB, DfSUPled_Pin);*/
+	  			  numberOfCANMessagesSent = 0;
+	  		  }
+	  	  }
+
+
+
+
+
 
 	  PLC(&DICCP);
 
-	  Get_Speed(&DICCP);
-
 	  Display(&DICCF, &DICCP);
-
-	  HAL_Delay(50);
 
   }
   /* USER CODE END 3 */

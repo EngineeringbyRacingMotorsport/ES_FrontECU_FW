@@ -83,8 +83,8 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_PIN)
 void Get_Speed(volatile DICCP_t *DICCP){
 
 	if((HAL_GetTick() - t_time) >= 250){
-		DICCP->FpDIGLvel = ((comptL*(14/200)) / ((HAL_GetTick() - t_time)/1000))*(36/10);
-		DICCP->FpDIGRvel = ((comptR*(14/200)) / ((HAL_GetTick() - t_time)/1000))*(36/10);
+		DICCP->FpDIGLvel = (uint16_t)(((uint64_t)comptL*25200ULL)/(HAL_GetTick() - t_time));
+		DICCP->FpDIGRvel = (uint16_t)(((uint64_t)comptR*25200ULL)/(HAL_GetTick() - t_time));
 
 		comptL=0;
 		comptR=0;

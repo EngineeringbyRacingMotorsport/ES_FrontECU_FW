@@ -123,8 +123,8 @@ typedef struct {
 	uint32_t  FpANLLpot  ;
 	uint8_t   FpDIGRpot  ;
 	uint8_t   FpDIGLpot  ;
-	uint8_t   FpDIGRvel  ;
-	uint8_t   FpDIGLvel  ;
+	uint16_t   FpDIGRvel  ;
+	uint16_t   FpDIGLvel  ;
 	uint16_t  FpANLbrake ;
 
 	uint16_t  FpANLRspeed ;
