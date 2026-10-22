@@ -31,11 +31,7 @@ void CAN_Msg_Maker(volatile DICCP_t *DICCP, uint8_t *Msg1, uint8_t *Msg2, uint8_
 	/*------------MISSATGE 1-----------*/
 	Msg1[0] |= (DICCP->FpDIGRpot  & 0xFF);
 	Msg1[1] |= (DICCP->FpDIGLpot  & 0xFF);
-	Msg1[2] |= (DICCP->FpDIGRvel  & 0xFF);
-	Msg1[3] |= (DICCP->FpDIGLvel  & 0xFF);
-	Msg1[4] |= (DICCP->FpANLbrake & 0xFF);
-	Msg1[5] |= (DICCP->FpANLRpot  & 0xFF);
-	Msg1[6] |= (DICCP->FpANLLpot  & 0xFF);
+	Msg1[2] |= (DICCP->FpANLbrake & 0xFF);
 
 	/*---------------MISSATGE 2----------------*/
 	Msg2[0] |= ((DICCP->FpINTtsoff   & 0x01) << 0);
@@ -56,6 +52,9 @@ void CAN_Msg_Maker(volatile DICCP_t *DICCP, uint8_t *Msg1, uint8_t *Msg2, uint8_
 
 	Msg2[3] |= ((DICCP->FpSHU      & 0x00FF) << 0);
 	Msg2[4] |= ((DICCP->FpSHU      & 0xFF00) >> 8);
+
+	Msg2[5] |= ((DICCP->FpANLRsus  & 0x00FF) << 0);
+	Msg2[6] |= ((DICCP->FpANLLsus  & 0xFF00) >> 8);
 
 	Msg3[0] = 0x90;
 	Msg3[1] = ((DICCP->FpANLRpot      & 0x00FF) << 0);
