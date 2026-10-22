@@ -99,7 +99,7 @@ int main(void)
   /* MCU Configuration--------------------------------------------------------*/
 
   /* Reset of all peripherals, Initializes the Flash interface and the Systick. */
-  HAL_Init();
+	HAL_Init();
 
   /* USER CODE BEGIN Init */
 
@@ -125,6 +125,7 @@ int main(void)
   CAN_Init_Custom(&hfdcan1);
 
   lcd_init();
+
 
   HAL_ADCEx_Calibration_Start(&hadc1, ADC_SINGLE_ENDED);
 
@@ -188,13 +189,10 @@ int main(void)
 	  	  }
 
 
-
-
-
-
 	  PLC(&DICCP);
 
 	  Display(&DICCF, &DICCP);
+
 
   }
   /* USER CODE END 3 */

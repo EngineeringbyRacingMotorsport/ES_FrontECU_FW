@@ -83,8 +83,17 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_PIN)
 void Get_Speed(volatile DICCP_t *DICCP){
 
 	if((HAL_GetTick() - t_time) >= 250){
-		DICCP->FpDIGLvel = (uint16_t)(((uint64_t)comptL*25200ULL)/(HAL_GetTick() - t_time));
-		DICCP->FpDIGRvel = (uint16_t)(((uint64_t)comptR*25200ULL)/(HAL_GetTick() - t_time));
+		DICCP->FpANLLspeed = (((uint64_t)comptL*25200ULL)/(HAL_GetTick() - t_time));
+		DICCP->FpANLRspeed = (((uint64_t)comptR*25200ULL)/(HAL_GetTick() - t_time));
+		DICCP->FpANLspeed = (DICCP->FpANLRspeed+DICCP->FpANLLspeed)/200;
+		uint32_t L = DICCP->FpANLLspeed;
+		uint32_t R = DICCP->FpANLRspeed;
+		uint32_t v_max = (L > R ) ? L : R;
+		uint32_t v_min = (L > R ) ? R : L;
+
+/*CORRETGIR SEGONS AGAFEM DATES PER SABER LA DIFERENCIA ENTRE LA VELOCITAT NORMAL I LA REAL,
+ CANVIAR EL FACTOR DE DIFF I MIRAR LA TENDENCIA DE LA VELOCITAT*/
+		DICCP->FpANLNspeed  = (uint16_t)v_max;
 
 		comptL=0;
 		comptR=0;

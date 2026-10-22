@@ -2,4 +2,4 @@
 ../Core/Src/f2p.c:33:6:DIG2DICCF	1
 ../Core/Src/f2p.c:41:6:DICCF2DICCP	12
 ../Core/Src/f2p.c:71:6:HAL_GPIO_EXTI_Callback	3
-../Core/Src/f2p.c:83:6:Get_Speed	2
+../Core/Src/f2p.c:83:6:Get_Speed	3

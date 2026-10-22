@@ -153,7 +153,7 @@ void R2D(volatile DICCF_t *DICCF, volatile DICCP_t *DICCP){
 	}
 }
 void Display(volatile DICCF_t *DICCF, volatile DICCP_t *DICCP){
-    char buffer[10];
+    char buffer[21];
 
     // Variables per al latch de l'error APPS
     static uint32_t latch_start_time = 0;
@@ -174,7 +174,7 @@ void Display(volatile DICCF_t *DICCF, volatile DICCP_t *DICCP){
     lcd_send_string(buffer);
 
     lcd_send_cmd(0x80 | (0x00 + 5));
-    sprintf(buffer, "%03ukm/h", DICCP->FpDIGvel);
+    sprintf(buffer, "%03ukm/h", DICCP->FpANLNspeed);
     lcd_send_string(buffer);
 
     lcd_send_cmd(0x80 | (0x00 + 14));
@@ -238,7 +238,5 @@ void Display(volatile DICCF_t *DICCF, volatile DICCP_t *DICCP){
         }
     }
 
-    lcd_send_cmd(0x80 | (0x54 + 5));
-    lcd_send_string(bar_buffer);
 }
 
