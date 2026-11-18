@@ -111,37 +111,54 @@ void get_vehicle_phase(volatile DICCP_t *DICCP)
 	static uint32_t precharge_start = 0;
 	static uint8_t  precharge_timed_out = 0;   // Després d'un timeout, esperem que s'obri el relé de precàrrega
 
-	uint8_t phase = DICCP->FpSTAphase;
-	uint8_t spre  = DICCP->TpDIGspre;
-	uint8_t sairp = DICCP->TpDIGsairp;
-	uint8_t sairn = DICCP->TpDIGsairn;
-	uint8_t hv    = DICCP->TpTHRhv;
+	// Còpia coherent de les entrades: la interrupció de CAN no les pot canviar a mitja lectura
+	uint32_t primask = __get_PRIMASK();
+	__disable_irq();
+	uint8_t phase  = DICCP->FpSTAphase;
+	uint8_t spre   = DICCP->TpDIGspre;
+	uint8_t sairp  = DICCP->TpDIGsairp;
+	uint8_t sairn  = DICCP->TpDIGsairn;
+	uint8_t hv     = DICCP->TpTHRhv;
+	uint8_t hv_d   = DICCP->DpTHRhv;
+	uint8_t hv_a   = DICCP->ApTHRhv;
+	uint8_t sdc    = DICCP->DpSDC;
+	uint8_t tsoff  = DICCP->FpINTtsoff;
+	uint8_t r2d    = DICCP->FpDIGr2d;
+	__set_PRIMASK(primask);
 
 	if (precharge_timed_out && spre == 0) {
 		precharge_timed_out = 0;
 	}
 
 	// any -> I: SDC obert o TS-off premut
-	if (DICCP->DpSDC == 0 || DICCP->FpINTtsoff == 1) {
+	if (sdc == 0 || tsoff == 1) {
 		phase = PHASE_I;
 	}
 	else {
 		switch (phase) {
 		case PHASE_I:
+			// I -> T: el TS ja està actiu (p.ex. reset del FrontECU amb el TS engegat)
+			if (sairp == 1 && sairn == 1 && spre == 0 && hv == 1 && hv_d == 1 && hv_a == 1) {
+				phase = PHASE_T;
+			}
 			// I -> P: SDC tancat, relé de precàrrega tancat, AIR- tancat
-			if (spre == 1 && sairn == 1 && !precharge_timed_out) {
+			else if (spre == 1 && sairn == 1 && !precharge_timed_out) {
 				precharge_start = HAL_GetTick();
 				phase = PHASE_P;
 			}
 			break;
 
 		case PHASE_P:
+			// P -> I: AIR- obert, precàrrega avortada
+			if (sairn == 0) {
+				phase = PHASE_I;
+			}
 			// P -> T: AIR+ tancat, relé de precàrrega obert, alta tensió present (TSAL, HVDB i HVAB)
-			if (sairp == 1 && spre == 0 && hv == 1 && DICCP->DpTHRhv == 1 && DICCP->ApTHRhv == 1) {
+			else if (sairp == 1 && spre == 0 && hv == 1 && hv_d == 1 && hv_a == 1) {
 				phase = PHASE_T;
 			}
 			// P -> I: l'AIR+ no s'ha tancat a temps
-			else if ((HAL_GetTick() - precharge_start) >= PRECHARGE_TIMEOUT_MS) {
+			else if (sairp == 0 && (HAL_GetTick() - precharge_start) >= PRECHARGE_TIMEOUT_MS) {
 				precharge_timed_out = 1;
 				phase = PHASE_I;
 			}
@@ -149,13 +166,13 @@ void get_vehicle_phase(volatile DICCP_t *DICCP)
 
 		case PHASE_T:
 		case PHASE_R:
-			// T/R -> I: AIR+ obert o alta tensió perduda
-			if (sairp == 0 || hv == 0) {
+			// T/R -> I: AIR+ o AIR- obert, o alta tensió perduda
+			if (sairp == 0 || sairn == 0 || hv == 0) {
 				phase = PHASE_I;
 			}
 			// T <-> R: seguim l'estat de R2D()
 			else {
-				phase = (DICCP->FpDIGr2d == 1) ? PHASE_R : PHASE_T;
+				phase = (r2d == 1) ? PHASE_R : PHASE_T;
 			}
 			break;
 
