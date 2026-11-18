@@ -101,3 +101,95 @@ void Get_Speed(volatile DICCP_t *DICCP){
 		t_time = HAL_GetTick();
 	};
 };
+
+#define PRECHARGE_TIMEOUT_MS 5000   // Temps màxim per tancar l'AIR+ després d'entrar a P
+#define PRECHARGE_CONFIRM_MS 6000   // Temps màxim per arribar a T (AIR+ tancat però sense confirmar T)
+
+// Calcula la fase del vehicle (FpSTAphase): I -> P -> T -> R.
+// Només llegeix FpDIGr2d: el R2D el decideix R2D(), aquí només el reflectim.
+void get_vehicle_phase(volatile DICCP_t *DICCP)
+{
+	static uint32_t precharge_start = 0;
+	static uint8_t  precharge_timed_out = 0;   // Després de sortir de P cap a I, esperem que s'obri el relé de precàrrega
+
+	// Còpia coherent de les entrades: la interrupció de CAN no les pot canviar a mitja lectura
+	uint32_t primask = __get_PRIMASK();
+	__disable_irq();
+	uint8_t phase  = DICCP->FpSTAphase;
+	uint8_t spre   = DICCP->TpDIGspre;
+	uint8_t sairp  = DICCP->TpDIGsairp;
+	uint8_t sairn  = DICCP->TpDIGsairn;
+	uint8_t hv     = DICCP->ApTHRhv;   // Referència d'alta tensió: només HVAB
+	uint8_t sdc    = DICCP->DpSDC;
+	uint8_t tsoff  = DICCP->FpINTtsoff;
+	uint8_t r2d    = DICCP->FpDIGr2d;
+	__set_PRIMASK(primask);
+
+	uint8_t old_phase = phase;
+
+	// any -> I: SDC obert o TS-off premut
+	if (sdc == 0 || tsoff == 1) {
+		phase = PHASE_I;
+	}
+	else {
+		switch (phase) {
+		case PHASE_I:
+			// I -> T: el TS ja està actiu (p.ex. reset del FrontECU amb el TS engegat)
+			if (sairp == 1 && sairn == 1 && spre == 0 && hv == 1) {
+				phase = PHASE_T;
+			}
+			// I -> P: SDC tancat, relé de precàrrega tancat, AIR- tancat
+			else if (spre == 1 && sairn == 1 && !precharge_timed_out) {
+				precharge_start = HAL_GetTick();
+				phase = PHASE_P;
+			}
+			break;
+
+		case PHASE_P:
+			// P -> I: AIR- obert, precàrrega avortada
+			if (sairn == 0) {
+				phase = PHASE_I;
+			}
+			// P -> T: AIR+ tancat, relé de precàrrega obert, alta tensió present
+			else if (sairp == 1 && spre == 0 && hv == 1) {
+				phase = PHASE_T;
+			}
+			// P -> I: relé de precàrrega obert sense AIR+, precàrrega avortada
+			else if (spre == 0 && sairp == 0) {
+				phase = PHASE_I;
+			}
+			// P -> I: l'AIR+ no s'ha tancat a temps, o T no s'ha confirmat a temps
+			else if ((HAL_GetTick() - precharge_start) >= (sairp ? PRECHARGE_CONFIRM_MS : PRECHARGE_TIMEOUT_MS)) {
+				phase = PHASE_I;
+			}
+			break;
+
+		case PHASE_T:
+		case PHASE_R:
+			// T/R -> I: AIR+ o AIR- obert, o alta tensió perduda
+			if (sairp == 0 || sairn == 0 || hv == 0) {
+				phase = PHASE_I;
+			}
+			// T <-> R: seguim l'estat de R2D()
+			else {
+				phase = (r2d == 1) ? PHASE_R : PHASE_T;
+			}
+			break;
+
+		default:
+			phase = PHASE_I;
+			break;
+		}
+	}
+
+	// Qualsevol sortida de P cap a I (timeout, AIR-, SDC o TS-off) bloqueja I -> P
+	// fins que veiem el relé de precàrrega obert: així el temporitzador no es reinicia
+	if (old_phase == PHASE_P && phase == PHASE_I) {
+		precharge_timed_out = 1;
+	}
+	if (spre == 0) {
+		precharge_timed_out = 0;
+	}
+
+	DICCP->FpSTAphase = phase;
+}

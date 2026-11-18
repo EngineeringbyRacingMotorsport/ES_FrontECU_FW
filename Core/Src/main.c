@@ -149,8 +149,8 @@ int main(void)
 
 	  HAL_GPIO_WritePin(GPIOB, FfSUPled_Pin, GPIO_PIN_SET);
 
-	  uint8_t Msg1[5] = {0};
-	  uint8_t Msg2[5] = {0};
+	  uint8_t Msg1[8] = {0};
+	  uint8_t Msg2[8] = {0};
 	  uint8_t Msg3[4] = {0};
 
 
@@ -165,6 +165,8 @@ int main(void)
 	  APPS(&DICCF, &DICCP);
 
 	  R2D(&DICCF, &DICCP);
+
+	  get_vehicle_phase(&DICCP);
 
 	  CAN_Msg_Maker(&DICCP, Msg1, Msg2, Msg3);
 
