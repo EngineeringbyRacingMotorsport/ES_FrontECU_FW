@@ -156,6 +156,10 @@ void get_vehicle_phase(volatile DICCP_t *DICCP)
 			else if (sairp == 1 && spre == 0 && hv == 1 && hv_d == 1 && hv_a == 1) {
 				phase = PHASE_T;
 			}
+			// P -> I: relé de precàrrega obert sense AIR+, precàrrega avortada
+			else if (spre == 0 && sairp == 0) {
+				phase = PHASE_I;
+			}
 			// P -> I: l'AIR+ no s'ha tancat a temps, o T no s'ha confirmat a temps
 			else if ((HAL_GetTick() - precharge_start) >= (sairp ? PRECHARGE_CONFIRM_MS : PRECHARGE_TIMEOUT_MS)) {
 				phase = PHASE_I;
