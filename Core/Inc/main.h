@@ -151,10 +151,12 @@ typedef struct {
 	uint8_t  FpINTtsoff	   ;
 	uint16_t FpSHU         ;
 	uint8_t  FpINTrefrion  ;
+	uint8_t  FpSTAphase    ;
 	float    FpANLlv;
 
 	/* ================ HVDB ================ */
 	uint8_t  DpSDC		   ;
+	uint8_t  DpTHRhv       ;
 	uint8_t  SpSDCbms	   ;
 	uint8_t  ApTHRhv       ;
 
@@ -166,6 +168,12 @@ typedef struct {
 	uint16_t MpANLmaxt     ;
 
 	uint16_t FpANLdist     ;
+
+	/* ================ TSAL ================ */
+	uint8_t  TpDIGspre     ;
+	uint8_t  TpDIGsairp    ;
+	uint8_t  TpDIGsairn    ;
+	uint8_t  TpTHRhv       ;
 } DICCP_t;
 
 /* USER CODE END Private defines */

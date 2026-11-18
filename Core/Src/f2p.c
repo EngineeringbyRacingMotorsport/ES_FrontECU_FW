@@ -101,3 +101,69 @@ void Get_Speed(volatile DICCP_t *DICCP){
 		t_time = HAL_GetTick();
 	};
 };
+
+#define PRECHARGE_TIMEOUT_MS 5000   // Temps màxim per tancar l'AIR+ després d'entrar a P
+
+// Calcula la fase del vehicle (FpSTAphase): I -> P -> T -> R.
+// Només llegeix FpDIGr2d: el R2D el decideix R2D(), aquí només el reflectim.
+void get_vehicle_phase(volatile DICCP_t *DICCP)
+{
+	static uint32_t precharge_start = 0;
+	static uint8_t  precharge_timed_out = 0;   // Després d'un timeout, esperem que s'obri el relé de precàrrega
+
+	uint8_t phase = DICCP->FpSTAphase;
+	uint8_t spre  = DICCP->TpDIGspre;
+	uint8_t sairp = DICCP->TpDIGsairp;
+	uint8_t sairn = DICCP->TpDIGsairn;
+	uint8_t hv    = DICCP->TpTHRhv;
+
+	if (precharge_timed_out && spre == 0) {
+		precharge_timed_out = 0;
+	}
+
+	// any -> I: SDC obert o TS-off premut
+	if (DICCP->DpSDC == 0 || DICCP->FpINTtsoff == 1) {
+		phase = PHASE_I;
+	}
+	else {
+		switch (phase) {
+		case PHASE_I:
+			// I -> P: SDC tancat, relé de precàrrega tancat, AIR- tancat
+			if (spre == 1 && sairn == 1 && !precharge_timed_out) {
+				precharge_start = HAL_GetTick();
+				phase = PHASE_P;
+			}
+			break;
+
+		case PHASE_P:
+			// P -> T: AIR+ tancat, relé de precàrrega obert, alta tensió present (TSAL, HVDB i HVAB)
+			if (sairp == 1 && spre == 0 && hv == 1 && DICCP->DpTHRhv == 1 && DICCP->ApTHRhv == 1) {
+				phase = PHASE_T;
+			}
+			// P -> I: l'AIR+ no s'ha tancat a temps
+			else if ((HAL_GetTick() - precharge_start) >= PRECHARGE_TIMEOUT_MS) {
+				precharge_timed_out = 1;
+				phase = PHASE_I;
+			}
+			break;
+
+		case PHASE_T:
+		case PHASE_R:
+			// T/R -> I: AIR+ obert o alta tensió perduda
+			if (sairp == 0 || hv == 0) {
+				phase = PHASE_I;
+			}
+			// T <-> R: seguim l'estat de R2D()
+			else {
+				phase = (DICCP->FpDIGr2d == 1) ? PHASE_R : PHASE_T;
+			}
+			break;
+
+		default:
+			phase = PHASE_I;
+			break;
+		}
+	}
+
+	DICCP->FpSTAphase = phase;
+}

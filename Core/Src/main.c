@@ -166,6 +166,8 @@ int main(void)
 
 	  R2D(&DICCF, &DICCP);
 
+	  get_vehicle_phase(&DICCP);
+
 	  CAN_Msg_Maker(&DICCP, Msg1, Msg2, Msg3);
 
 

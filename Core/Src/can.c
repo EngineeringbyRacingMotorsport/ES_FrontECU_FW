@@ -44,6 +44,7 @@ void CAN_Msg_Maker(volatile DICCP_t *DICCP, uint8_t *Msg1, uint8_t *Msg2, uint8_
 	Msg2[0] |= ((DICCP->FpINTr2d     & 0x01) << 2);
 	Msg2[0] |= ((DICCP->FpINTmenu    & 0x01) << 3);
 	Msg2[0] |= ((DICCP->FpDIGmicrosd & 0x01) << 4);
+	Msg2[0] |= ((DICCP->FpSTAphase   & 0x07) << 5);
 
 	Msg2[1] |= ((DICCP->FpSDCinertia & 0x01) << 0);
 	Msg2[1] |= ((DICCP->FpSDCbots    & 0x01) << 1);
@@ -94,6 +95,14 @@ void HAL_FDCAN_RxFifo0Callback(FDCAN_HandleTypeDef *hfdcan, uint32_t RxFifo0ITs)
             if(RxHeader.Identifier == 0x400)
             {
             	DICCP.DpSDC = (RxData[1] & 0x01);
+            	DICCP.DpTHRhv = ((RxData[1] >> 1) & 0x01);
+            }
+            if(RxHeader.Identifier == 0x500)
+            {
+            	DICCP.TpDIGspre  = ((RxData[0] >> 0) & 0x01);
+            	DICCP.TpDIGsairp = ((RxData[0] >> 1) & 0x01);
+            	DICCP.TpDIGsairn = ((RxData[0] >> 2) & 0x01);
+            	DICCP.TpTHRhv    = ((RxData[1] >> 0) & 0x01);
             }
             if(RxHeader.Identifier == 0x300)
             {
