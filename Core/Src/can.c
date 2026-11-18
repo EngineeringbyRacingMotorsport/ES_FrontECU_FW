@@ -95,14 +95,12 @@ void HAL_FDCAN_RxFifo0Callback(FDCAN_HandleTypeDef *hfdcan, uint32_t RxFifo0ITs)
             if(RxHeader.Identifier == 0x400 && RxHeader.RxFrameType == FDCAN_DATA_FRAME && RxHeader.DataLength >= FDCAN_DLC_BYTES_2)
             {
             	DICCP.DpSDC = (RxData[1] & 0x01);
-            	DICCP.DpTHRhv = ((RxData[1] >> 1) & 0x01);
             }
-            if(RxHeader.Identifier == 0x500 && RxHeader.RxFrameType == FDCAN_DATA_FRAME && RxHeader.DataLength >= FDCAN_DLC_BYTES_2)
+            if(RxHeader.Identifier == 0x500 && RxHeader.RxFrameType == FDCAN_DATA_FRAME && RxHeader.DataLength >= FDCAN_DLC_BYTES_1)
             {
             	DICCP.TpDIGspre  = ((RxData[0] >> 0) & 0x01);
             	DICCP.TpDIGsairp = ((RxData[0] >> 1) & 0x01);
             	DICCP.TpDIGsairn = ((RxData[0] >> 2) & 0x01);
-            	DICCP.TpTHRhv    = ((RxData[1] >> 0) & 0x01);
             }
             if(RxHeader.Identifier == 0x300 && RxHeader.RxFrameType == FDCAN_DATA_FRAME && RxHeader.DataLength >= FDCAN_DLC_BYTES_1)
             {

@@ -156,7 +156,6 @@ typedef struct {
 
 	/* ================ HVDB ================ */
 	uint8_t  DpSDC		   ;
-	uint8_t  DpTHRhv       ;
 	uint8_t  SpSDCbms	   ;
 	uint8_t  ApTHRhv       ;
 
@@ -173,7 +172,6 @@ typedef struct {
 	uint8_t  TpDIGspre     ;
 	uint8_t  TpDIGsairp    ;
 	uint8_t  TpDIGsairn    ;
-	uint8_t  TpTHRhv       ;
 } DICCP_t;
 
 /* USER CODE END Private defines */

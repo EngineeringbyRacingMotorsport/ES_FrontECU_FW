@@ -119,9 +119,7 @@ void get_vehicle_phase(volatile DICCP_t *DICCP)
 	uint8_t spre   = DICCP->TpDIGspre;
 	uint8_t sairp  = DICCP->TpDIGsairp;
 	uint8_t sairn  = DICCP->TpDIGsairn;
-	uint8_t hv     = DICCP->TpTHRhv;
-	uint8_t hv_d   = DICCP->DpTHRhv;
-	uint8_t hv_a   = DICCP->ApTHRhv;
+	uint8_t hv     = DICCP->ApTHRhv;   // Referència d'alta tensió: només HVAB
 	uint8_t sdc    = DICCP->DpSDC;
 	uint8_t tsoff  = DICCP->FpINTtsoff;
 	uint8_t r2d    = DICCP->FpDIGr2d;
@@ -137,7 +135,7 @@ void get_vehicle_phase(volatile DICCP_t *DICCP)
 		switch (phase) {
 		case PHASE_I:
 			// I -> T: el TS ja està actiu (p.ex. reset del FrontECU amb el TS engegat)
-			if (sairp == 1 && sairn == 1 && spre == 0 && hv == 1 && hv_d == 1 && hv_a == 1) {
+			if (sairp == 1 && sairn == 1 && spre == 0 && hv == 1) {
 				phase = PHASE_T;
 			}
 			// I -> P: SDC tancat, relé de precàrrega tancat, AIR- tancat
@@ -152,8 +150,8 @@ void get_vehicle_phase(volatile DICCP_t *DICCP)
 			if (sairn == 0) {
 				phase = PHASE_I;
 			}
-			// P -> T: AIR+ tancat, relé de precàrrega obert, alta tensió present (TSAL, HVDB i HVAB)
-			else if (sairp == 1 && spre == 0 && hv == 1 && hv_d == 1 && hv_a == 1) {
+			// P -> T: AIR+ tancat, relé de precàrrega obert, alta tensió present
+			else if (sairp == 1 && spre == 0 && hv == 1) {
 				phase = PHASE_T;
 			}
 			// P -> I: relé de precàrrega obert sense AIR+, precàrrega avortada
