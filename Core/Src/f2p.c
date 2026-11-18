@@ -110,7 +110,7 @@ void Get_Speed(volatile DICCP_t *DICCP){
 void get_vehicle_phase(volatile DICCP_t *DICCP)
 {
 	static uint32_t precharge_start = 0;
-	static uint8_t  precharge_timed_out = 0;   // Després d'un timeout, esperem que s'obri el relé de precàrrega
+	static uint8_t  precharge_timed_out = 0;   // Després de sortir de P cap a I, esperem que s'obri el relé de precàrrega
 
 	// Còpia coherent de les entrades: la interrupció de CAN no les pot canviar a mitja lectura
 	uint32_t primask = __get_PRIMASK();
@@ -127,9 +127,7 @@ void get_vehicle_phase(volatile DICCP_t *DICCP)
 	uint8_t r2d    = DICCP->FpDIGr2d;
 	__set_PRIMASK(primask);
 
-	if (precharge_timed_out && spre == 0) {
-		precharge_timed_out = 0;
-	}
+	uint8_t old_phase = phase;
 
 	// any -> I: SDC obert o TS-off premut
 	if (sdc == 0 || tsoff == 1) {
@@ -150,9 +148,8 @@ void get_vehicle_phase(volatile DICCP_t *DICCP)
 			break;
 
 		case PHASE_P:
-			// P -> I: AIR- obert, precàrrega avortada (com un timeout: cal obrir el relé de precàrrega per tornar a P)
+			// P -> I: AIR- obert, precàrrega avortada
 			if (sairn == 0) {
-				precharge_timed_out = 1;
 				phase = PHASE_I;
 			}
 			// P -> T: AIR+ tancat, relé de precàrrega obert, alta tensió present (TSAL, HVDB i HVAB)
@@ -161,7 +158,6 @@ void get_vehicle_phase(volatile DICCP_t *DICCP)
 			}
 			// P -> I: l'AIR+ no s'ha tancat a temps, o T no s'ha confirmat a temps
 			else if ((HAL_GetTick() - precharge_start) >= (sairp ? PRECHARGE_CONFIRM_MS : PRECHARGE_TIMEOUT_MS)) {
-				precharge_timed_out = 1;
 				phase = PHASE_I;
 			}
 			break;
@@ -182,6 +178,15 @@ void get_vehicle_phase(volatile DICCP_t *DICCP)
 			phase = PHASE_I;
 			break;
 		}
+	}
+
+	// Qualsevol sortida de P cap a I (timeout, AIR-, SDC o TS-off) bloqueja I -> P
+	// fins que veiem el relé de precàrrega obert: així el temporitzador no es reinicia
+	if (old_phase == PHASE_P && phase == PHASE_I) {
+		precharge_timed_out = 1;
+	}
+	if (spre == 0) {
+		precharge_timed_out = 0;
 	}
 
 	DICCP->FpSTAphase = phase;
