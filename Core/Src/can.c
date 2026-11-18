@@ -86,25 +86,25 @@ extern DICCP_t DICCP;
 void HAL_FDCAN_RxFifo0Callback(FDCAN_HandleTypeDef *hfdcan, uint32_t RxFifo0ITs)
 {
     FDCAN_RxHeaderTypeDef RxHeader;
-    uint8_t RxData[8];
+    uint8_t RxData[64];   // La HAL copia fins a 64 bytes segons el DLC
 
     if ((RxFifo0ITs & FDCAN_IT_RX_FIFO0_NEW_MESSAGE) != 0)
     {
         if (HAL_FDCAN_GetRxMessage(hfdcan, FDCAN_RX_FIFO0, &RxHeader, RxData) == HAL_OK)
         {
-            if(RxHeader.Identifier == 0x400 && RxHeader.IdType == FDCAN_STANDARD_ID && RxHeader.RxFrameType == FDCAN_DATA_FRAME && RxHeader.DataLength >= FDCAN_DLC_BYTES_2)
+            if(RxHeader.Identifier == 0x400 && RxHeader.RxFrameType == FDCAN_DATA_FRAME && RxHeader.DataLength >= FDCAN_DLC_BYTES_2)
             {
             	DICCP.DpSDC = (RxData[1] & 0x01);
             	DICCP.DpTHRhv = ((RxData[1] >> 1) & 0x01);
             }
-            if(RxHeader.Identifier == 0x500 && RxHeader.IdType == FDCAN_STANDARD_ID && RxHeader.RxFrameType == FDCAN_DATA_FRAME && RxHeader.DataLength >= FDCAN_DLC_BYTES_2)
+            if(RxHeader.Identifier == 0x500 && RxHeader.RxFrameType == FDCAN_DATA_FRAME && RxHeader.DataLength >= FDCAN_DLC_BYTES_2)
             {
             	DICCP.TpDIGspre  = ((RxData[0] >> 0) & 0x01);
             	DICCP.TpDIGsairp = ((RxData[0] >> 1) & 0x01);
             	DICCP.TpDIGsairn = ((RxData[0] >> 2) & 0x01);
             	DICCP.TpTHRhv    = ((RxData[1] >> 0) & 0x01);
             }
-            if(RxHeader.Identifier == 0x300)
+            if(RxHeader.Identifier == 0x300 && RxHeader.RxFrameType == FDCAN_DATA_FRAME && RxHeader.DataLength >= FDCAN_DLC_BYTES_1)
             {
             	DICCP.ApTHRhv = (RxData[0] & 0x01);
             }

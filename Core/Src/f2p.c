@@ -103,6 +103,7 @@ void Get_Speed(volatile DICCP_t *DICCP){
 };
 
 #define PRECHARGE_TIMEOUT_MS 5000   // Temps màxim per tancar l'AIR+ després d'entrar a P
+#define PRECHARGE_CONFIRM_MS 6000   // Temps màxim per arribar a T (AIR+ tancat però sense confirmar T)
 
 // Calcula la fase del vehicle (FpSTAphase): I -> P -> T -> R.
 // Només llegeix FpDIGr2d: el R2D el decideix R2D(), aquí només el reflectim.
@@ -149,16 +150,17 @@ void get_vehicle_phase(volatile DICCP_t *DICCP)
 			break;
 
 		case PHASE_P:
-			// P -> I: AIR- obert, precàrrega avortada
+			// P -> I: AIR- obert, precàrrega avortada (com un timeout: cal obrir el relé de precàrrega per tornar a P)
 			if (sairn == 0) {
+				precharge_timed_out = 1;
 				phase = PHASE_I;
 			}
 			// P -> T: AIR+ tancat, relé de precàrrega obert, alta tensió present (TSAL, HVDB i HVAB)
 			else if (sairp == 1 && spre == 0 && hv == 1 && hv_d == 1 && hv_a == 1) {
 				phase = PHASE_T;
 			}
-			// P -> I: l'AIR+ no s'ha tancat a temps
-			else if (sairp == 0 && (HAL_GetTick() - precharge_start) >= PRECHARGE_TIMEOUT_MS) {
+			// P -> I: l'AIR+ no s'ha tancat a temps, o T no s'ha confirmat a temps
+			else if ((HAL_GetTick() - precharge_start) >= (sairp ? PRECHARGE_CONFIRM_MS : PRECHARGE_TIMEOUT_MS)) {
 				precharge_timed_out = 1;
 				phase = PHASE_I;
 			}
